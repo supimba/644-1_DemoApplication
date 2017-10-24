@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="pref_example_list_titles">
+        <item>Englisch</item>
+        <item>Deutsch</item>
+    </string-array>
+    <string name="app_name">Demo Anwendung</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="hello_blank_fragment">Hallo leeres Fragment</string>
+    <string name="accounts_fragment_title">Konten</string>
+    <string name="clients_fragment_title">Kunden</string>
+    <string name="navigation_drawer_open">Navigationsleiste öffnen</string>
+    <string name="navigation_drawer_close">Navigationsleiste schliessen</string>
+    <string name="client_name">Nachname</string>
+    <string name="client_firstName">Vorname</string>
+    <string name="title_activity_login">Einloggen</string>
+    <string name="title_activity_settings">Einstellungen</string>
+    <string name="action_sign_in_short">Einloggen</string>
+    <string name="prompt_email">E-Mail</string>
+    <string name="prompt_password">Passwort</string>
+    <string name="action_create">Erstellen</string>
+    <string name="action_delete">Löschen</string>
+    <string name="action_update">Änderungen speichern</string>
+    <string name="client_repeat_password">Passwort wiederholen</string>
+    <string name="fragment_title_create_account">Account erstellen</string>
+    <string name="fragment_title_create_client">Klienten erstellen</string>
+    <string name="fragment_title_account">Konto</string>
+    <string name="account_balance">Kontostand</string>
+    <string name="action_deposit">Einzahlen</string>
+    <string name="action_withdraw">Abheben</string>
+    <string name="action_transaction">Ausführen</string>
+    <string name="action_accept">Ausführen</string>
+    <string name="transaction_from">Von</string>
+    <string name="transaction_to">Zu</string>
+    <string name="action_initialize_gae">Google Datastore initialisieren</string>
+    <string name="action_sign_in">Einloggen</string>
+    <string name="error_field_required">Pflichtfeld</string>
+    <string name="error_incorrect_password">Ungültiges Passwort</string>
+    <string name="error_invalid_email">Ungültige E-Mail Adresse</string>
+    <string name="error_invalid_password">Das gewählte Passwort ist zu kurz (&lt;4 Zeichen)</string>
+    <string name="fragment_title_transaction">Transaktion</string>
+    <string name="transaction_amount">Betrag</string>
+    <string name="error_transaction">Der Transferbetrag übertrifft den Kontostand</string>
+    <string name="error_transaction_negativ">Der Transaktionsbetrag muss positiv sein</string>
+    <string name="action_cancel">Abbrechen</string>
+    <string name="error_withdraw">Kontoabhebung darf nicht den Kontostand überschreiten</string>
+    <string name="fragment_title_edit_client">Kunde bearbeiten</string>
+    <string name="client_created">Kunde erstellt</string>
+    <string name="client_edited">Kunde bearbeitet</string>
+    <string name="prompt_account_name">Kontoname</string>
+    <string name="fragment_title_edit_account">Konto bearbeiten</string>
+    <string name="account_created">Konto erstellt</string>
+    <string name="account_edited">Konto bearbeitet</string>
+    <string name="account_deleted">Konto gelöscht</string>
+    <string name="client_deleted">Kunde gelöscht</string>
+    <string name="fragment_title_delete_account">Konto löschen</string>
+    <string name="fragment_title_delete_client">Kunde löschen</string>
+    <string name="account_delete_msg">Möchten Sie das Konto %1$s löschen?</string>
+    <string name="client_delete_msg">Möchten Sie den Kunden %1$s löschen? Alle dazugehörigen Konten werden ebenfalls gelöscht.</string>
+    <string name="pref_header_language">Sprache</string>
+    <string name="pref_header_about">Impressum</string>
+    <string name="pref_about_text">Diese Applikation wurde demonstrationszwecken entwickelt. Sie soll als Beispiel für eine App dienen, die vollständig auf das lokale Speichern von Daten verzichtet.</string>
+    <string name="pref_title_language">Ändern Sie ihre Anzeigesprache</string>
+    <string name="permission_rationale">"Kontakte Berechtigung sind nötig um die Autovervollständigung der Email zu benutzen."
+    </string>
+    <string name="client_fragment_title">Kunde</string>
+    <string name="action_logout">Ausloggen</string>
+    <string name="logout_msg">Möchten Sie sich wirklich ausloggen?</string>
+</resources>
