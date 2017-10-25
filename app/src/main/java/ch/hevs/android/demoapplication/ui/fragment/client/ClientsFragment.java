@@ -39,7 +39,8 @@ public class ClientsFragment extends Fragment {
     private RecyclerView recyclerView;
     private ClientListViewModel viewModel;
 
-    public ClientsFragment() { }
+    public ClientsFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -52,13 +53,9 @@ public class ClientsFragment extends Fragment {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
-        try {
-            if (!admin) {
-                Intent intent = new Intent(getActivity(), LoginActivity.class);
-                startActivity(intent);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+        if (!admin) {
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(intent);
         }
         viewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
     }
@@ -97,30 +94,26 @@ public class ClientsFragment extends Fragment {
             if (clients == null) {
                 clients = new ArrayList<>();
             }
-            try {
-                recyclerView.setAdapter(new RecyclerAdapter<>(clients, new RecyclerViewItemClickListener() {
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        Log.d(TAG, "clicked position:" + position);
-                        Log.d(TAG, "clicked on: " + clients.get(position).getEmail());
+            recyclerView.setAdapter(new RecyclerAdapter<>(clients, new RecyclerViewItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    Log.d(TAG, "clicked position:" + position);
+                    Log.d(TAG, "clicked on: " + clients.get(position).getEmail());
 
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.flContent, EditClientFragment.newInstance(clients.get(position)), "EditClient")
-                                .addToBackStack("clients")
-                                .commit();
-                    }
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.flContent, EditClientFragment.newInstance(clients.get(position)), "EditClient")
+                            .addToBackStack("clients")
+                            .commit();
+                }
 
-                    @Override
-                    public void onItemLongClick(View v, int position) {
-                        Log.d(TAG, "longClicked position:" + position);
-                        Log.d(TAG, "longClicked on: " + clients.get(position).getEmail());
+                @Override
+                public void onItemLongClick(View v, int position) {
+                    Log.d(TAG, "longClicked position:" + position);
+                    Log.d(TAG, "longClicked on: " + clients.get(position).getEmail());
 
-                        createDeleteDialog(position);
-                    }
-                }));
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
+                    createDeleteDialog(position);
+                }
+            }));
         }
     }
 
@@ -139,11 +132,7 @@ public class ClientsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.client_deleted), Toast.LENGTH_LONG);
-                try {
-                    viewModel.deleteClient(getContext(), client);
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
-                }
+                viewModel.deleteClient(getContext(), client);
                 toast.show();
             }
         });
