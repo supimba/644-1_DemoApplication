@@ -37,7 +37,7 @@
     <string name="error_field_required">Pflichtfeld</string>
     <string name="error_incorrect_password">Ungültiges Passwort</string>
     <string name="error_invalid_email">Ungültige E-Mail Adresse</string>
-    <string name="error_invalid_password">Das gewählte Passwort ist zu kurz (&lt;4 Zeichen)</string>
+    <string name="error_invalid_password">Das gewählte Passwort ist zu kurz (&lt;5 Zeichen)</string>
     <string name="fragment_title_transaction">Transaktion</string>
     <string name="transaction_amount">Betrag</string>
     <string name="error_transaction">Der Transferbetrag übertrifft den Kontostand</string>

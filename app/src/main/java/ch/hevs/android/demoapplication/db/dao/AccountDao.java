@@ -26,7 +26,7 @@ public abstract class AccountDao {
     public abstract AccountEntity getByIdSync(Long id);
 
     @Insert
-    public abstract void insert(AccountEntity account);
+    public abstract long insert(AccountEntity account);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     public abstract void insertAll(List<AccountEntity> accounts);

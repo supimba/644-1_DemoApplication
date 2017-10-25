@@ -22,7 +22,7 @@ public class ClientViewModel extends AndroidViewModel {
         ABSENT.setValue(null);
     }
 
-    private final LiveData<ClientEntity> mObservableProduct;
+    private final LiveData<ClientEntity> mObservableClient;
 
     public ObservableField<ClientEntity> client = new ObservableField<>();
 
@@ -35,7 +35,7 @@ public class ClientViewModel extends AndroidViewModel {
 
         final DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
 
-        mObservableProduct = Transformations.switchMap(databaseCreator.isDatabaseCreated(), new Function<Boolean, LiveData<ClientEntity>>() {
+        mObservableClient = Transformations.switchMap(databaseCreator.isDatabaseCreated(), new Function<Boolean, LiveData<ClientEntity>>() {
             @Override
             public LiveData<ClientEntity> apply(Boolean isDbCreated) {
                 if (!isDbCreated) {
@@ -52,8 +52,8 @@ public class ClientViewModel extends AndroidViewModel {
 
     }
 
-    public LiveData<ClientEntity> getObservableProduct() {
-        return mObservableProduct;
+    public LiveData<ClientEntity> getObservableClient() {
+        return mObservableClient;
     }
 
     public void setClient(ClientEntity account) {
@@ -71,9 +71,9 @@ public class ClientViewModel extends AndroidViewModel {
         @NonNull
         private final Application mApplication;
 
-        private final long mClientId;
+        private final String mClientId;
 
-        public Factory(@NonNull Application application, long clientId) {
+        public Factory(@NonNull Application application, String clientId) {
             mApplication = application;
             mClientId = clientId;
         }
@@ -81,7 +81,7 @@ public class ClientViewModel extends AndroidViewModel {
         @Override
         public <T extends ViewModel> T create(Class<T> modelClass) {
             //noinspection unchecked
-            return (T) new AccountViewModel(mApplication, mClientId);
+            return (T) new ClientViewModel(mApplication, mClientId);
         }
     }
 }

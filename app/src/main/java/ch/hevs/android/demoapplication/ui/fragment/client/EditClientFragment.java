@@ -1,5 +1,7 @@
 package ch.hevs.android.demoapplication.ui.fragment.client;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -13,16 +15,20 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.util.List;
+
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.async.client.GetClient;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
+import ch.hevs.android.demoapplication.viewmodel.ClientListViewModel;
 
 public class EditClientFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
     private static final String ARG_PARAM1 = "clientEmail";
 
+    private ClientListViewModel viewModel;
     private ClientEntity client;
     private boolean adminMode;
     private boolean editMode;
@@ -35,7 +41,8 @@ public class EditClientFragment extends Fragment {
     private EditText etPwd2;
     private Switch adminSwitch;
 
-    public EditClientFragment() { }
+    public EditClientFragment() {
+    }
 
     /**
      * Use this factory method to create a new instance of
@@ -62,6 +69,8 @@ public class EditClientFragment extends Fragment {
         super.onCreate(savedInstanceState);
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         adminMode = settings.getBoolean(MainActivity.PREFS_ADM, false);
+        viewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
+        observeViewModel(viewModel);
 
         if (getArguments() != null) {
             String clientMail = getArguments().getString(ARG_PARAM1);
@@ -108,9 +117,10 @@ public class EditClientFragment extends Fragment {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveChanges(etFirstName.getText().toString(), etLastName.getText().toString(), etEmail.getText().toString(), etPwd.getText().toString(), etPwd2.getText().toString(), adminSwitch.isChecked());
-                getActivity().onBackPressed();
-                toast.show();
+                if (saveChanges(etFirstName.getText().toString(), etLastName.getText().toString(), etEmail.getText().toString(), etPwd.getText().toString(), etPwd2.getText().toString(), adminSwitch.isChecked())){
+                    getActivity().onBackPressed();
+                    toast.show();
+                }
             }
         });
     }
@@ -128,27 +138,32 @@ public class EditClientFragment extends Fragment {
         }
     }
 
-    private void saveChanges(String firstName, String lastName, String email, String pwd, String pwd2, boolean admin) {
+    private boolean saveChanges(String firstName, String lastName, String email, String pwd, String pwd2, boolean admin) {
         if (editMode) {
             if (!pwd.equals(pwd2)) {
                 etPwd.setError(getString(R.string.error_incorrect_password));
                 etPwd.requestFocus();
                 etPwd.setText("");
                 etPwd2.setText("");
-                return;
+                return false;
             }
             client.setFirstName(firstName);
             client.setLastName(lastName);
             client.setPassword(pwd);
             client.setAdmin(admin);
-            //TODO: new UpdateClient(client.getEmail(), client);
+            viewModel.updateClient(getContext(), client);
         } else {
             if (!pwd.equals(pwd2) || pwd.length() < 5) {
                 etPwd.setError(getString(R.string.error_invalid_password));
                 etPwd.requestFocus();
                 etPwd.setText("");
                 etPwd2.setText("");
-                return;
+                return false;
+            }
+            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+                etEmail.setError(getString(R.string.error_invalid_email));
+                etEmail.requestFocus();
+                return false;
             }
             ClientEntity newClient = new ClientEntity();
             newClient.setFirstName(firstName);
@@ -157,22 +172,21 @@ public class EditClientFragment extends Fragment {
             newClient.setPassword(pwd);
             newClient.setAdmin(admin);
 
-            if (android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            if (!viewModel.addClient(getContext(), newClient)) {
                 etEmail.setError(getString(R.string.error_invalid_email));
                 etEmail.requestFocus();
-            }
-
-            try {
-                /*TODO:
-                if (new CreateClient(newClient).execute().get() != null) {
-                    etEmail.setError(getString(R.string.error_invalid_email));
-                    etEmail.requestFocus();
-                }
-                 */
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
+                return false;
             }
         }
         toast.show();
+        return true;
+    }
+
+    private void observeViewModel(ClientListViewModel viewModel) {
+        viewModel.getClients().observe(this, new Observer<List<ClientEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<ClientEntity> clientEntities) {
+            }
+        });
     }
 }

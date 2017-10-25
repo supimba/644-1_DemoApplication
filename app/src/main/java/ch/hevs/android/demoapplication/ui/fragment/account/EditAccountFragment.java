@@ -1,5 +1,7 @@
 package ch.hevs.android.demoapplication.ui.fragment.account;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -13,21 +15,23 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import java.util.List;
+
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.async.account.GetAccount;
-import ch.hevs.android.demoapplication.db.async.client.GetClient;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
+import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 public class EditAccountFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
     private static final String ARG_PARAM1 = "accountId";
 
+    private AccountListViewModel viewModel;
     private AccountEntity account;
-    private ClientEntity loggedIn;
+    private String user;
     private boolean editMode;
     private Toast toast;
 
@@ -59,16 +63,13 @@ public class EditAccountFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        String user = settings.getString(MainActivity.PREFS_USER, null);
+        user = settings.getString(MainActivity.PREFS_USER, null);
+        viewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
+        observeViewModel(viewModel);
 
         if (user == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
-        }
-        try {
-            loggedIn = new GetClient(getContext()).execute(user).get();
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
         }
 
         if (getArguments() != null) {
@@ -126,13 +127,20 @@ public class EditAccountFragment extends Fragment {
     private void saveChanges(String accountName) {
         if (editMode) {
             account.setName(accountName);
-            //TODO: new UpdateAccount(account.getId(), account).execute();
+            viewModel.updateAccount(getContext(), account);
         } else {
             AccountEntity newAccount = new AccountEntity();
-            newAccount.setOwner(loggedIn.getEmail());
+            newAccount.setOwner(user);
             newAccount.setBalance(0.0d);
             newAccount.setName(accountName);
-            //TODO: new CreateAccount(newAccount).execute();
+            viewModel.addAccount(getContext(), newAccount);
         }
+    }
+
+    private void observeViewModel(AccountListViewModel viewModel) {
+        viewModel.getAccounts().observe(this, new Observer<List<AccountEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<AccountEntity> accountEntities) {}
+        });
     }
 }

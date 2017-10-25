@@ -7,6 +7,7 @@ import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
 import android.arch.persistence.room.Query;
 import android.arch.persistence.room.Update;
+import android.database.sqlite.SQLiteConstraintException;
 
 import java.util.List;
 
@@ -26,7 +27,7 @@ public interface ClientDao {
     ClientEntity getByIdSync(String id);
 
     @Insert
-    void insert(ClientEntity client);
+    long insert(ClientEntity client) throws SQLiteConstraintException;
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<ClientEntity> clients);

@@ -1,5 +1,6 @@
 package ch.hevs.android.demoapplication.adapter;
 
+import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -7,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
+import java.util.Objects;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
@@ -15,8 +17,8 @@ import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
 
 public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {
 
-    private List<T> data;
-    private RecyclerViewItemClickListener listener;
+    private List<T> mData;
+    private RecyclerViewItemClickListener mListener;
 
     // Provide a reference to the views for each data item
     // Complex data items may need more than one view per item, and
@@ -31,8 +33,8 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
     }
 
     public RecyclerAdapter(List<T> data, RecyclerViewItemClickListener listener) {
-        this.data = data;
-        this.listener = listener;
+        mData = data;
+        mListener = listener;
     }
 
     @Override
@@ -44,13 +46,13 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
         v.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                listener.onItemClick(view, viewHolder.getAdapterPosition());
+                mListener.onItemClick(view, viewHolder.getAdapterPosition());
             }
         });
         v.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View view) {
-                listener.onItemLongClick(view, viewHolder.getAdapterPosition());
+                mListener.onItemLongClick(view, viewHolder.getAdapterPosition());
                 return true;
             }
         });
@@ -59,7 +61,7 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
 
     @Override
     public void onBindViewHolder(RecyclerAdapter.ViewHolder holder, int position) {
-        T item = data.get(position);
+        T item = mData.get(position);
         if (item.getClass().equals(AccountEntity.class))
             holder.mTextView.setText(((AccountEntity) item).getName());
         if (item.getClass().equals(ClientEntity.class))
@@ -68,6 +70,57 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
 
     @Override
     public int getItemCount() {
-        return data.size();
+        return mData.size();
+    }
+
+    public void setData(final List<T> data) {
+        DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return mData.size();
+            }
+
+            @Override
+            public int getNewListSize() {
+                return data.size();
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                if (mData instanceof AccountEntity) {
+                    return ((AccountEntity)mData.get(oldItemPosition)).getId() ==
+                            ((AccountEntity)data.get(newItemPosition)).getId();
+                }
+                if (mData instanceof ClientEntity) {
+                    return ((ClientEntity)mData.get(oldItemPosition)).getEmail().equals(
+                            ((ClientEntity)data.get(newItemPosition)).getEmail());
+                }
+                return false;
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                if (mData instanceof AccountEntity) {
+                    AccountEntity newAccount = (AccountEntity) data.get(newItemPosition);
+                    AccountEntity oldAccount = (AccountEntity) mData.get(newItemPosition);
+                    return newAccount.getId() == oldAccount.getId()
+                            && Objects.equals(newAccount.getName(), oldAccount.getName())
+                            && Objects.equals(newAccount.getBalance(), oldAccount.getBalance())
+                            && newAccount.getOwner() == oldAccount.getOwner();
+                }
+                if (mData instanceof ClientEntity) {
+                    ClientEntity newClient = (ClientEntity) data.get(newItemPosition);
+                    ClientEntity oldClient = (ClientEntity) mData.get(newItemPosition);
+                    return Objects.equals(newClient.getEmail(), oldClient.getEmail())
+                            && Objects.equals(newClient.getFirstName(), oldClient.getFirstName())
+                            && Objects.equals(newClient.getLastName(), oldClient.getLastName())
+                            && newClient.getPassword() == oldClient.getPassword()
+                            && newClient.isAdmin() == oldClient.isAdmin();
+                }
+                return false;
+            }
+        });
+        mData = data;
+        result.dispatchUpdatesTo(this);
     }
 }

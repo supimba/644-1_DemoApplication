@@ -22,7 +22,7 @@ public class AccountViewModel extends AndroidViewModel {
         ABSENT.setValue(null);
     }
 
-    private final LiveData<AccountEntity> mObservableProduct;
+    private final LiveData<AccountEntity> mObservableAccount;
 
     public ObservableField<AccountEntity> account = new ObservableField<>();
 
@@ -35,7 +35,7 @@ public class AccountViewModel extends AndroidViewModel {
 
         final DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
 
-        mObservableProduct = Transformations.switchMap(databaseCreator.isDatabaseCreated(), new Function<Boolean, LiveData<AccountEntity>>() {
+        mObservableAccount = Transformations.switchMap(databaseCreator.isDatabaseCreated(), new Function<Boolean, LiveData<AccountEntity>>() {
             @Override
             public LiveData<AccountEntity> apply(Boolean isDbCreated) {
                 if (!isDbCreated) {
@@ -52,8 +52,8 @@ public class AccountViewModel extends AndroidViewModel {
 
     }
 
-    public LiveData<AccountEntity> getObservableProduct() {
-        return mObservableProduct;
+    public LiveData<AccountEntity> getObservableAccount() {
+        return mObservableAccount;
     }
 
     public void setAccount(AccountEntity account) {

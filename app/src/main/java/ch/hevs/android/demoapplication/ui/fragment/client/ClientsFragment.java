@@ -1,5 +1,7 @@
 package ch.hevs.android.demoapplication.ui.fragment.client;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,15 +20,16 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.RecyclerAdapter;
-import ch.hevs.android.demoapplication.db.async.client.GetClient;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
+import ch.hevs.android.demoapplication.viewmodel.ClientListViewModel;
 
 public class ClientsFragment extends Fragment {
 
@@ -34,6 +37,7 @@ public class ClientsFragment extends Fragment {
 
     private List<ClientEntity> clients;
     private RecyclerView recyclerView;
+    private ClientListViewModel viewModel;
 
     public ClientsFragment() { }
 
@@ -43,19 +47,20 @@ public class ClientsFragment extends Fragment {
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.accounts_fragment_title));
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         String user = settings.getString(MainActivity.PREFS_USER, null);
+        Boolean admin = settings.getBoolean(MainActivity.PREFS_ADM, false);
         if (user == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
         try {
-            if (!new GetClient(getContext()).execute(user).get().isAdmin()) {
+            if (!admin) {
                 Intent intent = new Intent(getActivity(), LoginActivity.class);
                 startActivity(intent);
             }
-            //TODO: clients = new GetAllClients().execute().get();
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
+        viewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
     }
 
     @Override
@@ -88,8 +93,11 @@ public class ClientsFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (recyclerView != null) {
+            observeViewModel(viewModel);
+            if (clients == null) {
+                clients = new ArrayList<>();
+            }
             try {
-                //TODO: clients = new GetAllClients().execute().get();
                 recyclerView.setAdapter(new RecyclerAdapter<>(clients, new RecyclerViewItemClickListener() {
                     @Override
                     public void onItemClick(View v, int position) {
@@ -132,9 +140,7 @@ public class ClientsFragment extends Fragment {
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.client_deleted), Toast.LENGTH_LONG);
                 try {
-                    //TODO: new DeleteClient(client.getEmail()).execute().get();
-                    clients.remove(position);
-                    recyclerView.getAdapter().notifyDataSetChanged();
+                    viewModel.deleteClient(getContext(), client);
                 } catch (Exception e) {
                     Log.e(TAG, e.getMessage(), e);
                 }
@@ -150,5 +156,18 @@ public class ClientsFragment extends Fragment {
         });
         alertDialog.setView(view);
         alertDialog.show();
+    }
+
+    private void observeViewModel(ClientListViewModel viewModel) {
+        viewModel.getClients().observe(this, new Observer<List<ClientEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<ClientEntity> clientEntities) {
+                if (clientEntities != null) {
+                    clients = clientEntities;
+                    ((RecyclerAdapter) recyclerView.getAdapter()).setData(clients);
+                    recyclerView.getAdapter().notifyDataSetChanged();
+                }
+            }
+        });
     }
 }

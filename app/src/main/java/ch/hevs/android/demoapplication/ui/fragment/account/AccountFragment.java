@@ -1,5 +1,7 @@
 package ch.hevs.android.demoapplication.ui.fragment.account;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,18 +18,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.NumberFormat;
+import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.async.account.GetAccount;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
+import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 public class AccountFragment extends Fragment {
 
     private final String TAG = getClass().getSimpleName();
     private static final String ARG_PARAM1 = "accountId";
 
+    private AccountListViewModel viewModel;
     private AccountEntity account;
     private TextView tvBalance;
     private NumberFormat defaultFormat;
@@ -63,6 +68,8 @@ public class AccountFragment extends Fragment {
                 Log.e(TAG, e.getMessage(), e);
             }
         }
+        viewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
+        observeViewModel(viewModel);
     }
 
     @Override
@@ -123,24 +130,16 @@ public class AccountFragment extends Fragment {
                     if (account.getBalance() < amount) {
                         toast.show();
                     } else {
-                        try {
-                            account.setBalance(account.getBalance() - amount);
-                            //TODO: account = new UpdateAccount(account.getId(), account).execute().get();
-                            tvBalance.setText(defaultFormat.format(account.getBalance()));
-                        } catch (Exception e) {
-                            Log.e(TAG, e.getMessage(), e);
-                        }
+                        account.setBalance(account.getBalance() - amount);
+                        viewModel.updateAccount(getContext(), account);
+                        tvBalance.setText(defaultFormat.format(account.getBalance()));
                     }
                 }
                 if (action == R.string.action_deposit) {
                     Log.i(TAG, "Deposit: " + amount.toString());
-                    try {
-                        account.setBalance(account.getBalance() + amount);
-                        //TODO: account = new UpdateAccount(account.getId(), account).execute().get();
-                        tvBalance.setText(defaultFormat.format(account.getBalance()));
-                    } catch (Exception e) {
-                        Log.e(TAG, e.getMessage(), e);
-                    }
+                    account.setBalance(account.getBalance() + amount);
+                    viewModel.updateAccount(getContext(), account);
+                    tvBalance.setText(defaultFormat.format(account.getBalance()));
                 }
             }
         });
@@ -153,5 +152,12 @@ public class AccountFragment extends Fragment {
         });
         alertDialog.setView(view);
         alertDialog.show();
+    }
+
+    private void observeViewModel(AccountListViewModel viewModel) {
+        viewModel.getAccounts().observe(this, new Observer<List<AccountEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<AccountEntity> accountEntities) {}
+        });
     }
 }

@@ -1,5 +1,7 @@
 package ch.hevs.android.demoapplication.ui.fragment.account;
 
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -18,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,6 +29,7 @@ import ch.hevs.android.demoapplication.db.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
+import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 /**
  * A fragment representing a list of Items.
@@ -38,8 +40,10 @@ public class AccountsFragment extends Fragment {
 
     private List<AccountEntity> accounts;
     private RecyclerView recyclerView;
+    private AccountListViewModel viewModel;
 
-    public AccountsFragment() { }
+    public AccountsFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -47,18 +51,14 @@ public class AccountsFragment extends Fragment {
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.accounts_fragment_title));
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         String user = settings.getString(MainActivity.PREFS_USER, null);
+
         if (user == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
-        try {
-            //TODO: accounts = new GetOwnAccounts(user).execute().get();
-            if (accounts == null) {
-                accounts = new ArrayList<>();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
+        AccountListViewModel.Factory factory = new AccountListViewModel.Factory(
+                getActivity().getApplication(), user);
+        viewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);
     }
 
     @Override
@@ -93,34 +93,30 @@ public class AccountsFragment extends Fragment {
         if (recyclerView != null) {
             SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
             String user = settings.getString(MainActivity.PREFS_USER, null);
-            try {
-                //TODO: accounts = new GetOwnAccounts(user).execute().get();
-                if (accounts == null) {
-                    accounts = new ArrayList<>();
-                }
-                recyclerView.setAdapter(new RecyclerAdapter<>(accounts, new RecyclerViewItemClickListener() {
-                    @Override
-                    public void onItemClick(View v, int position) {
-                        Log.d(TAG, "clicked position:" + position);
-                        Log.d(TAG, "clicked on: " + accounts.get(position).getName());
-
-                        getActivity().getSupportFragmentManager().beginTransaction()
-                                .replace(R.id.flContent, AccountFragment.newInstance(accounts.get(position)), "AccountDetails")
-                                .addToBackStack("accounts")
-                                .commit();
-                    }
-
-                    @Override
-                    public void onItemLongClick(View v, int position) {
-                        Log.d(TAG, "longClicked position:" + position);
-                        Log.d(TAG, "longClicked on: " + accounts.get(position).getName());
-
-                        createDeleteDialog(position);
-                    }
-                }));
-            } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
+            observeViewModel(viewModel);
+            if (accounts == null) {
+                accounts = new ArrayList<>();
             }
+            recyclerView.setAdapter(new RecyclerAdapter<>(accounts, new RecyclerViewItemClickListener() {
+                @Override
+                public void onItemClick(View v, int position) {
+                    Log.d(TAG, "clicked position:" + position);
+                    Log.d(TAG, "clicked on: " + accounts.get(position).getName());
+
+                    getActivity().getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.flContent, AccountFragment.newInstance(accounts.get(position)), "AccountDetails")
+                            .addToBackStack("accounts")
+                            .commit();
+                }
+
+                @Override
+                public void onItemLongClick(View v, int position) {
+                    Log.d(TAG, "longClicked position:" + position);
+                    Log.d(TAG, "longClicked on: " + accounts.get(position).getName());
+
+                    createDeleteDialog(position);
+                }
+            }));
         }
     }
 
@@ -139,13 +135,7 @@ public class AccountsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.account_deleted), Toast.LENGTH_LONG);
-                try {
-                    //TODO: new DeleteAccount(account.getId()).execute().get();
-                    accounts.remove(position);
-                    recyclerView.getAdapter().notifyDataSetChanged();
-                } catch (Exception e) {
-                    Log.e(TAG, e.getMessage(), e);
-                }
+                viewModel.deleteAccount(getContext(), account);
                 toast.show();
             }
         });
@@ -158,5 +148,18 @@ public class AccountsFragment extends Fragment {
         });
         alertDialog.setView(view);
         alertDialog.show();
+    }
+
+    private void observeViewModel(AccountListViewModel viewModel) {
+        viewModel.getAccounts().observe(this, new Observer<List<AccountEntity>>() {
+            @Override
+            public void onChanged(@Nullable List<AccountEntity> accountEntities) {
+                if (accountEntities != null) {
+                    accounts = accountEntities;
+                    ((RecyclerAdapter) recyclerView.getAdapter()).setData(accounts);
+                    recyclerView.getAdapter().notifyDataSetChanged();
+                }
+            }
+        });
     }
 }
