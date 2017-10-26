@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,12 +14,16 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.ListAdapter;
+import ch.hevs.android.demoapplication.db.async.account.GetOwnAccounts;
+import ch.hevs.android.demoapplication.db.async.account.TransactionAccount;
 import ch.hevs.android.demoapplication.db.async.client.GetClient;
+import ch.hevs.android.demoapplication.db.async.client.GetClients;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
@@ -29,8 +34,20 @@ public class TransactionFragment extends Fragment {
     private final String TAG = getClass().getSimpleName();
 
     private ClientEntity loggedIn;
-    private AccountEntity toAccount;
     private AccountEntity fromAccount;
+    private AccountEntity toAccount;
+
+    private List<AccountEntity> clientAccounts;
+    private List<AccountEntity> ownAccounts;
+    private List<ClientEntity> clients;
+
+    private Spinner fromAccountSpinner;
+    private Spinner toClientSpinner;
+    private Spinner toAccountSpinner;
+
+    private ListAdapter<AccountEntity> fromAccountAdapter;
+    private ListAdapter<ClientEntity> clientAdapter;
+    private ListAdapter<AccountEntity> toAccountAdapter;
 
     public TransactionFragment() { }
 
@@ -73,9 +90,8 @@ public class TransactionFragment extends Fragment {
 
     private void populateForm() {
         try {
-            /* TODO:
-            List<AccountEntity> ownAccounts = new GetOwnAccounts(loggedIn.getEmail()).execute().get();
-            List<ClientEntity> clients = new GetAllClients().execute().get();
+            ownAccounts = new GetOwnAccounts(getContext()).execute(loggedIn.getEmail()).get();
+            clients = new GetClients(getContext()).execute().get();
             clients.remove(loggedIn);
             for (int i = 0; i < clients.size(); i++) {
                 if (clients.get(i).getEmail().equals(loggedIn.getEmail())) {
@@ -84,8 +100,8 @@ public class TransactionFragment extends Fragment {
                 }
             }
 
-            Spinner toClientSpinner = (Spinner) getView().findViewById(R.id.spinner_toClient);
-            ListAdapter<ClientEntity> clientAdapter = new ListAdapter<>(getContext(), R.layout.row_client, clients);
+            toClientSpinner = (Spinner) getView().findViewById(R.id.spinner_toClient);
+            clientAdapter = new ListAdapter<>(getContext(), R.layout.row_client, clients);
             toClientSpinner.setAdapter(clientAdapter);
             toClientSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -97,8 +113,8 @@ public class TransactionFragment extends Fragment {
                 public void onNothingSelected(AdapterView<?> adapterView) { }
             });
 
-            Spinner fromAccountSpinner = (Spinner) getView().findViewById(R.id.spinner_from);
-            ListAdapter<AccountEntity> fromAccountAdapter = new ListAdapter<>(getContext(), R.layout.row_client, ownAccounts);
+            fromAccountSpinner = (Spinner) getView().findViewById(R.id.spinner_from);
+            fromAccountAdapter = new ListAdapter<>(getContext(), R.layout.row_client, ownAccounts);
             fromAccountSpinner.setAdapter(fromAccountAdapter);
             fromAccountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -109,15 +125,15 @@ public class TransactionFragment extends Fragment {
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) { }
             });
-
+            final Toast toast = Toast.makeText(getContext(), getString(R.string.transaction_executed), Toast.LENGTH_LONG);
             Button transactionBtn = (Button) getActivity().findViewById(R.id.btn_transaction);
             transactionBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     executeTransaction();
+                    toast.show();
                 }
             });
-            */
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -125,9 +141,9 @@ public class TransactionFragment extends Fragment {
 
     private void populateToAccount(ClientEntity recipient) {
         try {
-            /*TODO: List<AccountEntity> clientAccounts = new GetOwnAccounts(recipient.getEmail()).execute().get();
-            Spinner toAccountSpinner = (Spinner) getView().findViewById(R.id.spinner_toAcc);
-            ListAdapter<AccountEntity> toAccountAdapter = new ListAdapter<>(getContext(), R.layout.row_client, clientAccounts);
+            clientAccounts = new GetOwnAccounts(getContext()).execute(recipient.getEmail()).get();
+            toAccountSpinner = (Spinner) getView().findViewById(R.id.spinner_toAcc);
+            toAccountAdapter = new ListAdapter<>(getContext(), R.layout.row_client, clientAccounts);
             toAccountSpinner.setAdapter(toAccountAdapter);
             toAccountSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
                 @Override
@@ -138,7 +154,6 @@ public class TransactionFragment extends Fragment {
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) { }
             });
-            */
         } catch (Exception e) {
             Log.e(TAG, e.getMessage(), e);
         }
@@ -151,11 +166,20 @@ public class TransactionFragment extends Fragment {
             amountEditText.setError(getString(R.string.error_transaction_negativ));
             amountEditText.requestFocus();
         }
+        if (fromAccount.getBalance() - amount < 0.0d) {
+            amountEditText.setError(getString(R.string.error_transaction));
+            amountEditText.requestFocus();
+            return;
+        }
+        fromAccount.setBalance(fromAccount.getBalance() - amount);
+        toAccount.setBalance(toAccount.getBalance() + amount);
+        //Pair<AccountEntity, AccountEntity> transaction = Pair.create(fromAccount, toAccount);
+        new TransactionAccount(getContext()).execute(Pair.create(fromAccount, toAccount));
         /* TODO:
         TransactionAccount transaction = new TransactionAccount(fromAccount.getId(), toAccount.getId(), amount);
         try {
             if (transaction.execute().get() != null) {
-                amountEditText.setError(getString(R.string.error_transaction));
+                amountEditText.seError(getString(R.string.error_transaction));
                 amountEditText.requestFocus();
             }
         } catch (Exception e) {

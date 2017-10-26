@@ -43,10 +43,11 @@ public abstract class AccountDao {
     /**
      * There's currently no way to add additional constraints (beside ForeignKey) to columns.
      *
-     * This means we currently cannot check on a DB level if the balance of an client will be
+     * This means we currently cannot check on a DB level if the balance of a client will be
      * updated with a negative value.
      * So we need to ensure that the sender has enough money on his client BEFORE we call this
      * method because we want to ensure that people cannot get into debt.
+     *
      * @param sender AccountEntity that sends the money
      * @param recipient AccountEntity that receives the money
      */
@@ -61,4 +62,7 @@ public abstract class AccountDao {
 
     @Query("SELECT * FROM accounts WHERE owner=:owner")
     public abstract LiveData<List<AccountEntity>> getOwned(String owner);
+
+    @Query("SELECT * FROM accounts WHERE owner=:owner")
+    public abstract List<AccountEntity> getOwnedSync(String owner);
 }

@@ -83,4 +83,5 @@
     <string name="client_fragment_title">Client</string>
     <string name="action_logout">Logout</string>
     <string name="logout_msg">Do you really want to logout?</string>
+    <string name="transaction_executed">Transaction executed</string>
 </resources>

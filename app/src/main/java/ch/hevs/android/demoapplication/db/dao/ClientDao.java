@@ -44,6 +44,9 @@ public interface ClientDao {
     @Query("SELECT * FROM clients")
     LiveData<List<ClientEntity>> getAll();
 
+    @Query("SELECT * FROM clients")
+    List<ClientEntity> getAllSync();
+
     @Query("SELECT * FROM clients WHERE email = :id")
     LiveData<ClientWithAccounts> loadClientWithAccounts(String id);
 

@@ -21,7 +21,9 @@ public class CreateClient extends AsyncTask<ClientEntity, Void, Boolean> {
         boolean response = true;
         try {
             for (ClientEntity client : params)
-                dbCreator.getDatabase().clientDao().insert(client);
+                dbCreator.getDatabase()
+                        .clientDao()
+                        .insert(client);
         } catch (SQLiteConstraintException e) {
             response = false;
         }
