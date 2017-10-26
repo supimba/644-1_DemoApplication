@@ -105,6 +105,7 @@ public class LoginActivity extends AppCompatActivity {
         // Check for a valid password, if the user entered one.
         if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
             mPasswordView.setError(getString(R.string.error_invalid_password));
+            mPasswordView.setText("");
             focusView = mPasswordView;
             cancel = true;
         }
@@ -147,6 +148,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();
+                    mPasswordView.setText("");
                 }
             } else {
                 mEmailView.setError(getString(R.string.error_invalid_email));
