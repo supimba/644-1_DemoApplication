@@ -6,7 +6,7 @@
 
     <string name="action_settings">Settings</string>
 
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="hello_blank_fragment">Welcome!</string>
     <string name="clients_fragment_title">Clients</string>
     <string name="accounts_fragment_title">Accounts</string>
     <string name="disclaimer" translatable="false">Copyright &#169; 2017\nHES-SO Valais//Wallis Sierre</string>
@@ -78,7 +78,7 @@
     <string name="account_delete_msg">Do you want to delete the account %1$s?</string>
     <string name="client_delete_msg">Do you really want to delete the client %1$s? All accounts of this client will be deleted as well.</string>
     <string name="pref_header_language">Language</string>
-    <string name="pref_about_text">This application was developed to provide a possibility to demonstrate how a full GAE based app could look like.</string>
+    <string name="pref_about_text">This application was developed to provide a possibility to demonstrate how the newly released Android Architecture Components could be implemented in an application.</string>
     <string name="pref_title_language">Change your display language</string>
     <string name="client_fragment_title">Client</string>
     <string name="action_logout">Logout</string>
