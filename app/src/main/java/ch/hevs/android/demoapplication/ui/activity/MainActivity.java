@@ -134,8 +134,7 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.nav_accounts) {
             fragmentClass = AccountsFragment.class;
             fragmentTag = "accounts";
-        }
-        else if (id == R.id.nav_transaction) {
+        } else if (id == R.id.nav_transaction) {
             fragmentClass = TransactionFragment.class;
             fragmentTag = "transaction";
         } else if (id == R.id.nav_client) {
@@ -157,7 +156,7 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    public void setActionBarTitle(String title){
+    public void setActionBarTitle(String title) {
         setTitle(title);
     }
 
@@ -174,7 +173,7 @@ public class MainActivity extends AppCompatActivity
         MenuItem client = menu.findItem(R.id.nav_client);
         MenuItem clients = menu.findItem(R.id.nav_clients);
 
-        if(admin) {
+        if (admin) {
             client.setVisible(false);
         } else {
             try {
@@ -188,29 +187,24 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0) {
-            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
-                // Pop off everything up to and including the current tab
-                return super.onKeyDown(keyCode, event);
-            } else {
-                final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
-                alertDialog.setTitle(getString(R.string.action_logout));
-                alertDialog.setCancelable(false);
-                alertDialog.setMessage(getString(R.string.logout_msg));
-                alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_logout), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        logout();
-                    }
-                });
-                alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.action_cancel), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        alertDialog.dismiss();
-                    }
-                });
-                alertDialog.show();
-            }
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0 && getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
+            alertDialog.setTitle(getString(R.string.action_logout));
+            alertDialog.setCancelable(false);
+            alertDialog.setMessage(getString(R.string.logout_msg));
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_logout), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    logout();
+                }
+            });
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getString(R.string.action_cancel), new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    alertDialog.dismiss();
+                }
+            });
+            alertDialog.show();
             return true;
         }
         return super.onKeyDown(keyCode, event);
