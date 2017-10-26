@@ -173,18 +173,6 @@ public class TransactionFragment extends Fragment {
         }
         fromAccount.setBalance(fromAccount.getBalance() - amount);
         toAccount.setBalance(toAccount.getBalance() + amount);
-        //Pair<AccountEntity, AccountEntity> transaction = Pair.create(fromAccount, toAccount);
         new TransactionAccount(getContext()).execute(Pair.create(fromAccount, toAccount));
-        /* TODO:
-        TransactionAccount transaction = new TransactionAccount(fromAccount.getId(), toAccount.getId(), amount);
-        try {
-            if (transaction.execute().get() != null) {
-                amountEditText.seError(getString(R.string.error_transaction));
-                amountEditText.requestFocus();
-            }
-        } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
-        }
-         */
     }
 }
