@@ -23,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.Locale;
+import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.async.client.GetClient;
@@ -36,7 +37,7 @@ import ch.hevs.android.demoapplication.ui.fragment.transaction.TransactionFragme
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "MainActivity";
     private final String BACK_STACK_ROOT_TAG = "MAIN";
 
     public static final String PREFS_NAME = "SharedPrefs";
@@ -147,7 +148,7 @@ public class MainActivity extends AppCompatActivity
                 fragment = (Fragment) fragmentClass.newInstance();
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.e(TAG, e.getMessage(), e);
         }
         fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack(BACK_STACK_ROOT_TAG).commit();
 
@@ -179,7 +180,7 @@ public class MainActivity extends AppCompatActivity
         } else {
             try {
                 loggedIn = new GetClient(getApplicationContext()).execute(loggedInEmail).get();
-            } catch (Exception e) {
+            } catch (InterruptedException | ExecutionException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
             clients.setVisible(false);

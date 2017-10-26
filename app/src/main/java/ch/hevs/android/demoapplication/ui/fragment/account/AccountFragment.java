@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import java.text.NumberFormat;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.async.account.GetAccount;
@@ -29,7 +30,7 @@ import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 public class AccountFragment extends Fragment {
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "AccountFragment";
     private static final String ARG_PARAM1 = "accountId";
 
     private AccountListViewModel viewModel;
@@ -64,7 +65,7 @@ public class AccountFragment extends Fragment {
             Long accountId = getArguments().getLong(ARG_PARAM1);
             try {
                 account = new GetAccount(getContext()).execute(accountId).get();
-            } catch (Exception e) {
+            } catch (InterruptedException | ExecutionException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
         }

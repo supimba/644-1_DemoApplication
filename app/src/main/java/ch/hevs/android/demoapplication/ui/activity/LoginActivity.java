@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -28,6 +29,8 @@ import ch.hevs.android.demoapplication.db.entity.ClientEntity;
  * A login screen that offers login via email/password.
  */
 public class LoginActivity extends AppCompatActivity {
+
+    private static final String TAG = "LoginActivity";
 
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -130,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
             try {
                 client = new GetClient(getApplicationContext()).execute(email).get();
             } catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
+                Log.e(TAG, e.getMessage(), e);
             }
             if (client != null) {
                 if (client.getPassword().equals(password)) {

@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.async.account.GetAccount;
@@ -26,7 +27,7 @@ import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 public class EditAccountFragment extends Fragment {
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "EditAccountFragment";
     private static final String ARG_PARAM1 = "accountId";
 
     private AccountListViewModel viewModel;
@@ -82,7 +83,7 @@ public class EditAccountFragment extends Fragment {
                 ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_edit_account));
                 try {
                     account = new GetAccount(getContext()).execute(accountId).get();
-                } catch (Exception e) {
+                } catch (InterruptedException | ExecutionException e) {
                     Log.e(TAG, e.getMessage(), e);
                 }
                 toast = Toast.makeText(getContext(), getString(R.string.account_edited), Toast.LENGTH_LONG);

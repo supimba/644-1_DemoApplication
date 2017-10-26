@@ -16,6 +16,7 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.db.async.client.GetClient;
@@ -25,7 +26,7 @@ import ch.hevs.android.demoapplication.viewmodel.ClientListViewModel;
 
 public class EditClientFragment extends Fragment {
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "EditClientFragment";
     private static final String ARG_PARAM1 = "clientEmail";
 
     private ClientListViewModel viewModel;
@@ -82,7 +83,7 @@ public class EditClientFragment extends Fragment {
                 ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_edit_client));
                 try {
                     client = new GetClient(getContext()).execute(clientMail).get();
-                } catch (Exception e) {
+                } catch (InterruptedException | ExecutionException e) {
                     Log.e(TAG, e.getMessage(), e);
                 }
                 toast = Toast.makeText(getContext(), getString(R.string.client_edited), Toast.LENGTH_LONG);

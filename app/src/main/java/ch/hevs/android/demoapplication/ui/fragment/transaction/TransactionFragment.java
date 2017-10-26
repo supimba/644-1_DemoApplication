@@ -17,6 +17,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.ListAdapter;
@@ -31,7 +32,7 @@ import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 
 public class TransactionFragment extends Fragment {
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "TransactionFragment";
 
     private ClientEntity loggedIn;
     private AccountEntity fromAccount;
@@ -64,7 +65,7 @@ public class TransactionFragment extends Fragment {
         }
         try {
             loggedIn = new GetClient(getContext()).execute(user).get();
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
         }
     }
@@ -134,7 +135,7 @@ public class TransactionFragment extends Fragment {
                     toast.show();
                 }
             });
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
         }
     }
@@ -154,7 +155,7 @@ public class TransactionFragment extends Fragment {
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) { }
             });
-        } catch (Exception e) {
+        } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
         }
     }

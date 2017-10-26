@@ -6,26 +6,23 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
-import android.support.annotation.Nullable;
-import android.support.v7.app.ActionBar;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.util.DisplayMetrics;
+import android.support.annotation.Nullable;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.support.v4.app.NavUtils;
 import android.view.View;
 
-import ch.hevs.android.demoapplication.R;
-
 import java.util.List;
-import java.util.Locale;
+
+import ch.hevs.android.demoapplication.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -40,7 +37,7 @@ import java.util.Locale;
  */
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
-    private final String TAG = getClass().getSimpleName();
+    private final String TAG = "SettingsActivity";
 
     public static final int LANGUAGE_CHANGED = 1000;
 
@@ -196,7 +193,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class LanguagePreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener{
 
-        private final String TAG = getClass().getSimpleName();
+        private final String TAG = "LanguagePreferenceFragment";
 
         @Override
         public void onResume() {
