@@ -165,6 +165,7 @@ public class MainActivity extends AppCompatActivity
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
             return c.getResources().getConfiguration().getLocales().get(0);
         } else {
+            //noinspection deprecation
             return c.getResources().getConfiguration().locale;
         }
     }

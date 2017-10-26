@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 1,
-    "identityHash": "0094e78b638ddf6fc723a24bd11bbb6b",
+    "identityHash": "63db52849e9e69155c407ed5ac7b62c8",
     "entities": [
       {
         "tableName": "accounts",
@@ -39,7 +39,16 @@
           ],
           "autoGenerate": true
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_accounts_owner",
+            "unique": false,
+            "columnNames": [
+              "owner"
+            ],
+            "createSql": "CREATE  INDEX `index_accounts_owner` ON `${TABLE_NAME}` (`owner`)"
+          }
+        ],
         "foreignKeys": [
           {
             "table": "clients",
@@ -101,7 +110,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"0094e78b638ddf6fc723a24bd11bbb6b\")"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, \"63db52849e9e69155c407ed5ac7b62c8\")"
     ]
   }
 }

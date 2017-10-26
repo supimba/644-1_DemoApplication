@@ -148,6 +148,10 @@ public class LoginActivity extends AppCompatActivity {
                     mPasswordView.setError(getString(R.string.error_incorrect_password));
                     mPasswordView.requestFocus();
                 }
+            } else {
+                mEmailView.setError(getString(R.string.error_invalid_email));
+                mEmailView.requestFocus();
+                mPasswordView.setText("");
             }
         }
     }
