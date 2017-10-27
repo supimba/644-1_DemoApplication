@@ -1,6 +1,7 @@
 package ch.hevs.android.demoapplication.ui.fragment;
 
 import android.os.Bundle;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,6 +37,17 @@ public class MainFragment extends Fragment {
     public void onResume() {
         super.onResume();
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.app_name));
+        /*
+            Workaround to unselect item in navigation drawer.
+            It selects an invisible dummy menu item
+             */
+        NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
+        navigationView.setCheckedItem(R.id.nav_none);
+        /*
+        int size = navigationView.getMenu().size();
+        for (int i = 0; i < size; i++) {
+            navigationView.getMenu().getItem(i).setChecked(false);
+        }*/
     }
 
     @Override

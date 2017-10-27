@@ -18,6 +18,10 @@
             android:id="@+id/nav_clients"
             android:icon="@drawable/ic_group_black_24dp"
             android:title="@string/clients_fragment_title" />
+        <item
+            android:id="@+id/nav_none"
+            android:title=""
+            android:visible="false"/>
     </group>
 
 </menu>
