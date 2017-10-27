@@ -19,16 +19,16 @@ import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 
 public class ListAdapter<T> extends ArrayAdapter<T> {
 
-    private Context context;
-    private int resource;
-    private List<T> data = new ArrayList<>();
+    private Context mContext;
+    private int mResource;
+    private List<T> mData = new ArrayList<>();
 
 
     public ListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<T> data) {
         super(context, resource, data);
-        this.resource = resource;
-        this.context = context;
-        this.data = data;
+        mResource = resource;
+        mContext = context;
+        mData = data;
     }
 
     @NonNull
@@ -43,7 +43,7 @@ public class ListAdapter<T> extends ArrayAdapter<T> {
     }
 
     public T getItem(int position) {
-        return data.get(position);
+        return mData.get(position);
     }
 
     private View getCustomView(int position, View convertView, ViewGroup parent) {
@@ -51,7 +51,7 @@ public class ListAdapter<T> extends ArrayAdapter<T> {
 
         if (convertView == null) {
             convertView = LayoutInflater.from(this.getContext())
-                    .inflate(resource, parent, false);
+                    .inflate(mResource, parent, false);
 
             viewHolder = new ListAdapter.ViewHolder();
             viewHolder.itemView = (TextView) convertView.findViewById(R.id.tvClientView);

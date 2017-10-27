@@ -17,6 +17,8 @@ import static ch.hevs.android.demoapplication.db.AppDatabase.DATABASE_NAME;
  */
 public class DatabaseCreator {
 
+    public static final String TAG = "DatabaseCreator";
+
     private static DatabaseCreator sInstance;
 
     private final MutableLiveData<Boolean> mIsDatabaseCreated = new MutableLiveData<>();
@@ -39,7 +41,9 @@ public class DatabaseCreator {
         return sInstance;
     }
 
-    /** Used to observe when the database initialization is done */
+    /**
+     * Used to observe when the database initialization is done
+     */
     public LiveData<Boolean> isDatabaseCreated() {
         return mIsDatabaseCreated;
     }
@@ -67,8 +71,7 @@ public class DatabaseCreator {
 
             @Override
             protected Void doInBackground(Context... params) {
-                Log.d("DatabaseCreator",
-                        "Starting bg job " + Thread.currentThread().getName());
+                Log.d(TAG, "Starting bg job " + Thread.currentThread().getName());
 
                 Context context = params[0].getApplicationContext();
 
@@ -84,8 +87,7 @@ public class DatabaseCreator {
 
                 // Add some data to the database
                 DatabaseInitUtil.initializeDb(db);
-                Log.d("DatabaseCreator",
-                        "DB was populated in thread " + Thread.currentThread().getName());
+                Log.d(TAG, "DB was populated in thread " + Thread.currentThread().getName());
 
                 mDb = db;
                 return null;
@@ -102,6 +104,7 @@ public class DatabaseCreator {
     private void addDelay() {
         try {
             Thread.sleep(4000);
-        } catch (InterruptedException ignored) {}
+        } catch (InterruptedException ignored) {
+        }
     }
 }
