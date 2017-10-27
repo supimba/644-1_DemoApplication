@@ -45,7 +45,7 @@ public class ClientsFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.accounts_fragment_title));
+        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.clients_fragment_title));
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         String user = settings.getString(MainActivity.PREFS_USER, null);
         Boolean admin = settings.getBoolean(MainActivity.PREFS_ADM, false);
@@ -58,6 +58,12 @@ public class ClientsFragment extends Fragment {
             startActivity(intent);
         }
         viewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.clients_fragment_title));
     }
 
     @Override

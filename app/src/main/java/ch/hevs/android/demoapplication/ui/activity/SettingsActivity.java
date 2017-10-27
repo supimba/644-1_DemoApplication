@@ -193,7 +193,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public static class LanguagePreferenceFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener{
 
-        private final String TAG = "LanguagePreferenceFragment";
+        private final String TAG = "LanguageFragment";
 
         @Override
         public void onResume() {

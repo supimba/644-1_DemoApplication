@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import ch.hevs.android.demoapplication.R;
+import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 
 public class MainFragment extends Fragment {
     public MainFragment() {
@@ -29,6 +30,12 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.app_name));
     }
 
     @Override
