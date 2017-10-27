@@ -43,11 +43,6 @@ public class MainFragment extends Fragment {
              */
         NavigationView navigationView = getActivity().findViewById(R.id.nav_view);
         navigationView.setCheckedItem(R.id.nav_none);
-        /*
-        int size = navigationView.getMenu().size();
-        for (int i = 0; i < size; i++) {
-            navigationView.getMenu().getItem(i).setChecked(false);
-        }*/
     }
 
     @Override
