@@ -214,6 +214,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             String lang = settings.getString(MainActivity.PREFS_LNG, "en");
             ListPreference langPref = (ListPreference) findPreference("Language");
             if(langPref.getValue() == null){
+                //TODO: Get this working. :-)
                 if (lang.equals("en")) {
                     langPref.setValueIndex(0);
                 } else {
@@ -258,6 +259,11 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
             }
         }
 
+        /**
+         * TODO: Language change is working, but nav drawer items are not yet updated. Also Login-/SettingsActivity title.
+         * @param context
+         * @param selectedLanguage
+         */
         public void updateLanguage(Context context, String selectedLanguage) {
             if (!selectedLanguage.isEmpty()) {
                 Locale locale = new Locale(selectedLanguage);
