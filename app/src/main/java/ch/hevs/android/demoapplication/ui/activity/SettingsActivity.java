@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 
 import java.util.List;
+import java.util.Locale;
 
 import ch.hevs.android.demoapplication.R;
 
@@ -38,8 +39,6 @@ import ch.hevs.android.demoapplication.R;
 public class SettingsActivity extends AppCompatPreferenceActivity {
 
     private final String TAG = "SettingsActivity";
-
-    public static final int LANGUAGE_CHANGED = 1000;
 
     /**
      * A preference value change listener that updates the preference's summary
@@ -211,6 +210,17 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         public void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
             addPreferencesFromResource(R.xml.pref_language);
+            SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
+            String lang = settings.getString(MainActivity.PREFS_LNG, "en");
+            ListPreference langPref = (ListPreference) findPreference("Language");
+            if(langPref.getValue() == null){
+                if (lang.equals("en")) {
+                    langPref.setValueIndex(0);
+                } else {
+                    langPref.setValueIndex(1);
+                }
+            }
+
             setHasOptionsMenu(true);
         }
 
@@ -239,9 +249,26 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
 
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            String lang = sharedPreferences.getString(MainActivity.PREFS_LNG, "en_GB");
+            String lang = sharedPreferences.getString(MainActivity.PREFS_LNG, "en");
             Log.i(TAG, "changed language to " + lang);
-            //MainActivity.OnLanguageChange(lang);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                updateLanguage(getContext(), lang);
+            } else {
+                updateLanguage(getActivity().getBaseContext(), lang);
+            }
+        }
+
+        public void updateLanguage(Context context, String selectedLanguage) {
+            if (!selectedLanguage.isEmpty()) {
+                Locale locale = new Locale(selectedLanguage);
+                Locale.setDefault(locale);
+                Configuration config = new Configuration();
+                config.locale = locale;
+                context.getResources().updateConfiguration(config, getResources().getDisplayMetrics());
+                Intent intent = getActivity().getIntent();
+                startActivity(intent);
+                getActivity().finish();
+            }
         }
     }
 }

@@ -2,8 +2,8 @@
 
     <ListPreference
         android:defaultValue="-1"
-        android:entries="@array/pref_example_list_titles"
-        android:entryValues="@array/pref_example_list_values"
+        android:entries="@array/pref_language_list_titles"
+        android:entryValues="@array/pref_language_list_values"
         android:key="Language"
         android:negativeButtonText="@null"
         android:positiveButtonText="@null"

@@ -18,7 +18,6 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -85,13 +84,8 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
-        } else {
-            super.onBackPressed();
-        }
+    protected void onResume() {
+        super.onResume();
     }
 
     @Override
@@ -188,8 +182,13 @@ public class MainActivity extends AppCompatActivity
     }
 
     @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getRepeatCount() == 0 && getSupportFragmentManager().getBackStackEntryCount() == 0) {
+    public void onBackPressed() {
+        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (drawer.isDrawerOpen(GravityCompat.START)) {
+            drawer.closeDrawer(GravityCompat.START);
+            return;
+        }
+        if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
             final AlertDialog alertDialog = new AlertDialog.Builder(this).create();
             alertDialog.setTitle(getString(R.string.action_logout));
             alertDialog.setCancelable(false);
@@ -207,9 +206,9 @@ public class MainActivity extends AppCompatActivity
                 }
             });
             alertDialog.show();
-            return true;
+            return;
         }
-        return super.onKeyDown(keyCode, event);
+        super.onBackPressed();
     }
 
     private void logout() {
