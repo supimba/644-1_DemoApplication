@@ -6,10 +6,10 @@ import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
-import android.content.Context;
 import android.database.sqlite.SQLiteConstraintException;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -62,15 +62,15 @@ public class ClientListViewModel extends AndroidViewModel {
         return mObservableClients;
     }
 
-    public void deleteClient(Context context, ClientEntity client) {
-        new DeleteClient(context).execute(client);
+    public void deleteClient(View view, ClientEntity client) {
+        new DeleteClient(view).execute(client);
         mObservableClients.getValue().remove(client);
     }
 
-    public boolean addClient(Context context, ClientEntity client) throws SQLiteConstraintException {
+    public boolean addClient(View view, ClientEntity client) throws SQLiteConstraintException {
         boolean response;
         try {
-            response = new CreateClient(context).execute(client).get();
+            response = new CreateClient(view).execute(client).get();
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
             return false;
@@ -79,16 +79,8 @@ public class ClientListViewModel extends AndroidViewModel {
         return response;
     }
 
-    public void updateClient(Context context, ClientEntity client) {
-        new UpdateClient(context).execute(client);
+    public void updateClient(View view, ClientEntity client) {
+        new UpdateClient(view).execute(client);
         mObservableClients.getValue().set(mObservableClients.getValue().indexOf(client), client);
-    }
-
-    public ClientEntity getClient(Context context, String email) {
-        for (ClientEntity entity : mObservableClients.getValue()) {
-            if (entity.getEmail().equals(email))
-                return entity;
-        }
-        return null;
     }
 }

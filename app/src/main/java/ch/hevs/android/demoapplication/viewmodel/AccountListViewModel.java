@@ -8,9 +8,9 @@ import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Transformations;
 import android.arch.lifecycle.ViewModel;
 import android.arch.lifecycle.ViewModelProvider;
-import android.content.Context;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -88,14 +88,14 @@ public class AccountListViewModel extends AndroidViewModel {
         return mObservableAccounts;
     }
 
-    public void deleteAccount(Context context, AccountEntity account) {
-        new DeleteAccount(context).execute(account);
+    public void deleteAccount(View view, AccountEntity account) {
+        new DeleteAccount(view).execute(account);
         mObservableAccounts.getValue().remove(account);
     }
 
-    public void addAccount(Context context, AccountEntity account) {
+    public void addAccount(View view, AccountEntity account) {
         try {
-            Long id = new CreateAccount(context).execute(account).get();
+            Long id = new CreateAccount(view).execute(account).get();
             account.setId(id);
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
@@ -104,17 +104,9 @@ public class AccountListViewModel extends AndroidViewModel {
         mObservableAccounts.getValue().add(account);
     }
 
-    public void updateAccount(Context context, AccountEntity account) {
-        new UpdateAccount(context).execute(account);
+    public void updateAccount(View view, AccountEntity account) {
+        new UpdateAccount(view).execute(account);
         mObservableAccounts.getValue().set(mObservableAccounts.getValue().indexOf(account), account);
-    }
-
-    public AccountEntity getAccount(Context context, long id) {
-        for (AccountEntity entity : mObservableAccounts.getValue()) {
-            if (entity.getId().equals(id))
-                return entity;
-        }
-        return null;
     }
 
     /**

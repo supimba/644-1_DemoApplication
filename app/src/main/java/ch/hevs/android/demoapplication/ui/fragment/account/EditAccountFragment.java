@@ -30,13 +30,14 @@ public class EditAccountFragment extends Fragment {
     private final String TAG = "EditAccountFragment";
     private static final String ARG_PARAM1 = "accountId";
 
-    private AccountListViewModel viewModel;
-    private AccountEntity account;
-    private String user;
-    private boolean editMode;
-    private Toast toast;
+    private AccountListViewModel mViewModel;
+    private AccountEntity mAccount;
+    private Long mAccountId;
+    private String mUser;
+    private boolean mEditMode;
+    private Toast mToast;
 
-    private EditText etAccountName;
+    private EditText mEtAccountName;
 
     public EditAccountFragment() { }
 
@@ -64,30 +65,25 @@ public class EditAccountFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        user = settings.getString(MainActivity.PREFS_USER, null);
-        viewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
-        observeViewModel(viewModel);
+        mUser = settings.getString(MainActivity.PREFS_USER, null);
+        mViewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
+        observeViewModel(mViewModel);
 
-        if (user == null) {
+        if (mUser == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
 
         if (getArguments() != null) {
-            long accountId = getArguments().getLong(ARG_PARAM1);
-            if (accountId == -1L) {
+            mAccountId = getArguments().getLong(ARG_PARAM1);
+            if (mAccountId == -1L) {
                 ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_create_account));
-                toast = Toast.makeText(getContext(), getString(R.string.account_created), Toast.LENGTH_LONG);
-                editMode = false;
+                mToast = Toast.makeText(getContext(), getString(R.string.account_created), Toast.LENGTH_LONG);
+                mEditMode = false;
             } else {
                 ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_edit_account));
-                try {
-                    account = new GetAccount(getContext()).execute(accountId).get();
-                } catch (InterruptedException | ExecutionException e) {
-                    Log.e(TAG, e.getMessage(), e);
-                }
-                toast = Toast.makeText(getContext(), getString(R.string.account_edited), Toast.LENGTH_LONG);
-                editMode = true;
+                mToast = Toast.makeText(getContext(), getString(R.string.account_edited), Toast.LENGTH_LONG);
+                mEditMode = true;
             }
         }
     }
@@ -103,38 +99,44 @@ public class EditAccountFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initializeForm();
-        if (editMode)
+        if (mEditMode) {
+            try {
+                mAccount = new GetAccount(getView()).execute(mAccountId).get();
+            } catch (InterruptedException | ExecutionException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
             populateForm();
+        }
     }
 
     private void initializeForm() {
-        etAccountName = (EditText) getActivity().findViewById(R.id.accountName);
-        etAccountName.requestFocus();
+        mEtAccountName = (EditText) getActivity().findViewById(R.id.accountName);
+        mEtAccountName.requestFocus();
         Button saveBtn = (Button) getActivity().findViewById(R.id.createAccountButton);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                saveChanges(etAccountName.getText().toString());
+                saveChanges(mEtAccountName.getText().toString());
                 getActivity().onBackPressed();
-                toast.show();
+                mToast.show();
             }
         });
     }
 
     private void populateForm() {
-        etAccountName.setText(account.getName());
+        mEtAccountName.setText(mAccount.getName());
     }
 
     private void saveChanges(String accountName) {
-        if (editMode) {
-            account.setName(accountName);
-            viewModel.updateAccount(getContext(), account);
+        if (mEditMode) {
+            mAccount.setName(accountName);
+            mViewModel.updateAccount(getView(), mAccount);
         } else {
             AccountEntity newAccount = new AccountEntity();
-            newAccount.setOwner(user);
+            newAccount.setOwner(mUser);
             newAccount.setBalance(0.0d);
             newAccount.setName(accountName);
-            viewModel.addAccount(getContext(), newAccount);
+            mViewModel.addAccount(getView(), newAccount);
         }
     }
 

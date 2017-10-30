@@ -33,10 +33,11 @@ public class AccountFragment extends Fragment {
     private final String TAG = "AccountFragment";
     private static final String ARG_PARAM1 = "accountId";
 
-    private AccountListViewModel viewModel;
-    private AccountEntity account;
-    private TextView tvBalance;
-    private NumberFormat defaultFormat;
+    private AccountListViewModel mViewModel;
+    private AccountEntity mAccount;
+    private Long mAccountId;
+    private TextView mTvBalance;
+    private NumberFormat mDefaultFormat;
 
     public AccountFragment() {
     }
@@ -62,15 +63,10 @@ public class AccountFragment extends Fragment {
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_account));
 
         if (getArguments() != null) {
-            Long accountId = getArguments().getLong(ARG_PARAM1);
-            try {
-                account = new GetAccount(getContext()).execute(accountId).get();
-            } catch (InterruptedException | ExecutionException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
+            mAccountId = getArguments().getLong(ARG_PARAM1);
         }
-        viewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
-        observeViewModel(viewModel);
+        mViewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
+        observeViewModel(mViewModel);
     }
 
     @Override
@@ -83,10 +79,17 @@ public class AccountFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (account != null) {
-            tvBalance = (TextView) getActivity().findViewById(R.id.accBalance);
-            defaultFormat = NumberFormat.getCurrencyInstance(MainActivity.getCurrentLocale(getContext()));
-            tvBalance.setText(defaultFormat.format(account.getBalance()));
+        if (mAccountId != null) {
+            try {
+                mAccount = new GetAccount(getView()).execute(mAccountId).get();
+            } catch (InterruptedException | ExecutionException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+        }
+        if (mAccount != null) {
+            mTvBalance = (TextView) getActivity().findViewById(R.id.accBalance);
+            mDefaultFormat = NumberFormat.getCurrencyInstance(MainActivity.getCurrentLocale(getContext()));
+            mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
 
             Button depositBtn = (Button) getActivity().findViewById(R.id.depositButton);
             depositBtn.setOnClickListener(new View.OnClickListener() {
@@ -128,19 +131,19 @@ public class AccountFragment extends Fragment {
 
                 if (action == R.string.action_withdraw) {
                     Log.i(TAG, "Withdrawal: " + amount.toString());
-                    if (account.getBalance() < amount) {
+                    if (mAccount.getBalance() < amount) {
                         toast.show();
                     } else {
-                        account.setBalance(account.getBalance() - amount);
-                        viewModel.updateAccount(getContext(), account);
-                        tvBalance.setText(defaultFormat.format(account.getBalance()));
+                        mAccount.setBalance(mAccount.getBalance() - amount);
+                        mViewModel.updateAccount(getView(), mAccount);
+                        mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
                     }
                 }
                 if (action == R.string.action_deposit) {
                     Log.i(TAG, "Deposit: " + amount.toString());
-                    account.setBalance(account.getBalance() + amount);
-                    viewModel.updateAccount(getContext(), account);
-                    tvBalance.setText(defaultFormat.format(account.getBalance()));
+                    mAccount.setBalance(mAccount.getBalance() + amount);
+                    mViewModel.updateAccount(getView(), mAccount);
+                    mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
                 }
             }
         });

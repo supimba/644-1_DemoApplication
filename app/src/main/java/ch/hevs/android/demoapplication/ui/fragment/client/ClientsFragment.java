@@ -35,9 +35,9 @@ public class ClientsFragment extends Fragment {
 
     private static final String TAG = "ClientsFragment";
 
-    private List<ClientEntity> clients;
-    private RecyclerView recyclerView;
-    private ClientListViewModel viewModel;
+    private List<ClientEntity> mClients;
+    private RecyclerView mRecyclerView;
+    private ClientListViewModel mViewModel;
 
     public ClientsFragment() {
     }
@@ -57,7 +57,7 @@ public class ClientsFragment extends Fragment {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
-        viewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
+        mViewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
     }
 
     @Override
@@ -71,7 +71,7 @@ public class ClientsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_clients_list, container, false);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.clientsRecyclerView);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.clientsRecyclerView);
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -83,11 +83,11 @@ public class ClientsFragment extends Fragment {
             }
         });
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
                 LinearLayoutManager.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
+        mRecyclerView.addItemDecoration(dividerItemDecoration);
 
         return view;
     }
@@ -95,27 +95,27 @@ public class ClientsFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (recyclerView != null) {
-            observeViewModel(viewModel);
-            if (clients == null) {
-                clients = new ArrayList<>();
+        if (mRecyclerView != null) {
+            observeViewModel(mViewModel);
+            if (mClients == null) {
+                mClients = new ArrayList<>();
             }
-            recyclerView.setAdapter(new RecyclerAdapter<>(clients, new RecyclerViewItemClickListener() {
+            mRecyclerView.setAdapter(new RecyclerAdapter<>(mClients, new RecyclerViewItemClickListener() {
                 @Override
                 public void onItemClick(View v, int position) {
                     Log.d(TAG, "clicked position:" + position);
-                    Log.d(TAG, "clicked on: " + clients.get(position).getEmail());
+                    Log.d(TAG, "clicked on: " + mClients.get(position).getEmail());
 
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flContent, EditClientFragment.newInstance(clients.get(position)), "EditClient")
-                            .addToBackStack("clients")
+                            .replace(R.id.flContent, EditClientFragment.newInstance(mClients.get(position)), "EditClient")
+                            .addToBackStack("mClients")
                             .commit();
                 }
 
                 @Override
                 public void onItemLongClick(View v, int position) {
                     Log.d(TAG, "longClicked position:" + position);
-                    Log.d(TAG, "longClicked on: " + clients.get(position).getEmail());
+                    Log.d(TAG, "longClicked on: " + mClients.get(position).getEmail());
 
                     createDeleteDialog(position);
                 }
@@ -124,7 +124,7 @@ public class ClientsFragment extends Fragment {
     }
 
     private void createDeleteDialog(final int position) {
-        final ClientEntity client = clients.get(position);
+        final ClientEntity client = mClients.get(position);
         LayoutInflater inflater = LayoutInflater.from(getContext());
         final View view = inflater.inflate(R.layout.row_delete_item, null);
         final AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
@@ -138,7 +138,7 @@ public class ClientsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.client_deleted), Toast.LENGTH_LONG);
-                viewModel.deleteClient(getContext(), client);
+                mViewModel.deleteClient(getView(), client);
                 toast.show();
             }
         });
@@ -158,9 +158,9 @@ public class ClientsFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<ClientEntity> clientEntities) {
                 if (clientEntities != null) {
-                    clients = clientEntities;
-                    ((RecyclerAdapter) recyclerView.getAdapter()).setData(clients);
-                    recyclerView.getAdapter().notifyDataSetChanged();
+                    mClients = clientEntities;
+                    ((RecyclerAdapter) mRecyclerView.getAdapter()).setData(mClients);
+                    mRecyclerView.getAdapter().notifyDataSetChanged();
                 }
             }
         });

@@ -44,9 +44,9 @@ public class MainActivity extends AppCompatActivity
     public static final String PREFS_ADM = "UserPermission";
     public static final String PREFS_LNG = "Language";
 
-    private Boolean admin;
-    private String loggedInEmail;
-    private ClientEntity loggedIn;
+    private Boolean mAdmin;
+    private String mLoggedInEmail;
+    private ClientEntity mLoggedIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,8 +56,8 @@ public class MainActivity extends AppCompatActivity
         setSupportActionBar(toolbar);
 
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        admin = settings.getBoolean(PREFS_ADM, false);
-        loggedInEmail = settings.getString(PREFS_USER, null);
+        mAdmin = settings.getBoolean(PREFS_ADM, false);
+        mLoggedInEmail = settings.getString(PREFS_USER, null);
 
         if (savedInstanceState == null) {
             Fragment fragment = null;
@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity
         }
         try {
             if (fragmentTag.equals("client")) {
-                fragment = EditClientFragment.newInstance(loggedIn);
+                fragment = EditClientFragment.newInstance(mLoggedIn);
             } else {
                 fragment = (Fragment) fragmentClass.newInstance();
             }
@@ -169,11 +169,11 @@ public class MainActivity extends AppCompatActivity
         MenuItem client = menu.findItem(R.id.nav_client);
         MenuItem clients = menu.findItem(R.id.nav_clients);
 
-        if (admin) {
+        if (mAdmin) {
             client.setVisible(false);
         } else {
             try {
-                loggedIn = new GetClient(getApplicationContext()).execute(loggedInEmail).get();
+                mLoggedIn = new GetClient(getCurrentFocus()).execute(mLoggedInEmail).get();
             } catch (InterruptedException | ExecutionException e) {
                 Log.e(TAG, e.getMessage(), e);
             }

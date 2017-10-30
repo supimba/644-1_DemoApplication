@@ -38,9 +38,9 @@ public class AccountsFragment extends Fragment {
 
     private static final String TAG = "AccountsFragment";
 
-    private List<AccountEntity> accounts;
-    private RecyclerView recyclerView;
-    private AccountListViewModel viewModel;
+    private List<AccountEntity> mAccounts;
+    private RecyclerView mRecyclerView;
+    private AccountListViewModel mViewModel;
 
     public AccountsFragment() {
     }
@@ -58,7 +58,7 @@ public class AccountsFragment extends Fragment {
         }
         AccountListViewModel.Factory factory = new AccountListViewModel.Factory(
                 getActivity().getApplication(), user);
-        viewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);
+        mViewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);
     }
 
     @Override
@@ -72,23 +72,23 @@ public class AccountsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_accounts_list, container, false);
 
-        recyclerView = (RecyclerView) view.findViewById(R.id.accountsRecyclerView);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.accountsRecyclerView);
         FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 getActivity().getSupportFragmentManager().beginTransaction()
                         .replace(R.id.flContent, EditAccountFragment.newInstance(null), "CreateAccount")
-                        .addToBackStack("accounts")
+                        .addToBackStack("mAccounts")
                         .commit();
             }
         });
 
-        recyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(recyclerView.getContext(),
+        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(mRecyclerView.getContext(),
                 LinearLayoutManager.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
+        mRecyclerView.addItemDecoration(dividerItemDecoration);
 
         return view;
     }
@@ -96,29 +96,29 @@ public class AccountsFragment extends Fragment {
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
-        if (recyclerView != null) {
+        if (mRecyclerView != null) {
             SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
             String user = settings.getString(MainActivity.PREFS_USER, null);
-            observeViewModel(viewModel);
-            if (accounts == null) {
-                accounts = new ArrayList<>();
+            observeViewModel(mViewModel);
+            if (mAccounts == null) {
+                mAccounts = new ArrayList<>();
             }
-            recyclerView.setAdapter(new RecyclerAdapter<>(accounts, new RecyclerViewItemClickListener() {
+            mRecyclerView.setAdapter(new RecyclerAdapter<>(mAccounts, new RecyclerViewItemClickListener() {
                 @Override
                 public void onItemClick(View v, int position) {
                     Log.d(TAG, "clicked position:" + position);
-                    Log.d(TAG, "clicked on: " + accounts.get(position).getName());
+                    Log.d(TAG, "clicked on: " + mAccounts.get(position).getName());
 
                     getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flContent, AccountFragment.newInstance(accounts.get(position)), "AccountDetails")
-                            .addToBackStack("accounts")
+                            .replace(R.id.flContent, AccountFragment.newInstance(mAccounts.get(position)), "AccountDetails")
+                            .addToBackStack("mAccounts")
                             .commit();
                 }
 
                 @Override
                 public void onItemLongClick(View v, int position) {
                     Log.d(TAG, "longClicked position:" + position);
-                    Log.d(TAG, "longClicked on: " + accounts.get(position).getName());
+                    Log.d(TAG, "longClicked on: " + mAccounts.get(position).getName());
 
                     createDeleteDialog(position);
                 }
@@ -127,7 +127,7 @@ public class AccountsFragment extends Fragment {
     }
 
     private void createDeleteDialog(final int position) {
-        final AccountEntity account = accounts.get(position);
+        final AccountEntity account = mAccounts.get(position);
         LayoutInflater inflater = LayoutInflater.from(getContext());
         final View view = inflater.inflate(R.layout.row_delete_item, null);
         final AlertDialog alertDialog = new AlertDialog.Builder(getContext()).create();
@@ -141,7 +141,7 @@ public class AccountsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.account_deleted), Toast.LENGTH_LONG);
-                viewModel.deleteAccount(getContext(), account);
+                mViewModel.deleteAccount(getView(), account);
                 toast.show();
             }
         });
@@ -161,9 +161,9 @@ public class AccountsFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<AccountEntity> accountEntities) {
                 if (accountEntities != null) {
-                    accounts = accountEntities;
-                    ((RecyclerAdapter) recyclerView.getAdapter()).setData(accounts);
-                    recyclerView.getAdapter().notifyDataSetChanged();
+                    mAccounts = accountEntities;
+                    ((RecyclerAdapter) mRecyclerView.getAdapter()).setData(mAccounts);
+                    mRecyclerView.getAdapter().notifyDataSetChanged();
                 }
             }
         });

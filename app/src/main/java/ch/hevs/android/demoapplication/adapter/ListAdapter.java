@@ -19,15 +19,12 @@ import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 
 public class ListAdapter<T> extends ArrayAdapter<T> {
 
-    private Context mContext;
     private int mResource;
     private List<T> mData = new ArrayList<>();
-
 
     public ListAdapter(@NonNull Context context, @LayoutRes int resource, @NonNull List<T> data) {
         super(context, resource, data);
         mResource = resource;
-        mContext = context;
         mData = data;
     }
 

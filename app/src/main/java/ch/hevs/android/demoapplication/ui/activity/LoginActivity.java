@@ -136,7 +136,7 @@ public class LoginActivity extends AppCompatActivity {
         } else {
             ClientEntity client = null;
             try {
-                client = new GetClient(getApplicationContext()).execute(email).get();
+                client = new GetClient(getCurrentFocus()).execute(email).get();
             } catch (ExecutionException | InterruptedException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
