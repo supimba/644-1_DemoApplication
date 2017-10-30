@@ -43,4 +43,7 @@ dependencies {
     compile "android.arch.persistence.room:runtime:$arc_comp_version"
     annotationProcessor "android.arch.lifecycle:compiler:$arc_comp_version"
     annotationProcessor "android.arch.persistence.room:compiler:$arc_comp_version"
+    // FirebaseUI components
+    compile "com.firebaseui:firebase-ui-auth:$firebase_version"
+    compile "com.firebaseui:firebase-ui-firestore:$firebase_version"
 }
