@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         android:text="@string/transaction_from"
         android:textStyle="bold"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
 
     <Spinner
         android:id="@+id/spinner_from"
@@ -37,7 +37,7 @@
         android:layout_height="wrap_content"
         android:text="@string/transaction_to"
         android:textStyle="bold"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
 
     <Spinner
         android:id="@+id/spinner_toClient"
@@ -52,7 +52,7 @@
         android:layout_height="wrap_content"
         android:text="@string/fragment_title_account"
         android:textStyle="bold"
-        android:textAppearance="@android:style/TextAppearance.Material.Medium" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Medium" />
 
     <Spinner
         android:id="@+id/spinner_toAcc"

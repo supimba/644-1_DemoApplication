@@ -34,7 +34,7 @@
         <item>German</item>
     </string-array>
 
-    <string-array name="pref_language_list_values">
+    <string-array name="pref_language_list_values" translatable="false">
         <item>en</item>
         <item>de</item>
     </string-array>

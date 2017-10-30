@@ -6,7 +6,7 @@
     android:layout_marginRight="16dp"
     android:layout_marginTop="16dp"
     android:orientation="vertical"
-    tools:context="ch.hevs.android.demoapplication.ui.fragment.client.AccountFragment">
+    tools:context="ch.hevs.android.demoapplication.ui.fragment.account.AccountFragment">
 
     <TextView
         android:id="@+id/accBalanceTitle"
@@ -15,7 +15,7 @@
         android:gravity="center"
         android:text="@string/account_balance"
         android:textStyle="bold"
-        android:textAppearance="@android:style/TextAppearance.Material.Large" />
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large" />
 
     <TextView
         android:id="@+id/accBalance"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:text="@string/balance"
-        android:textAppearance="@android:style/TextAppearance.Material.Large"
+        android:textAppearance="@android:style/TextAppearance.DeviceDefault.Large"
         android:textStyle="bold" />
 
     <View
