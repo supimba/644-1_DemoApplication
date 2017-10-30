@@ -1,6 +1,5 @@
 package ch.hevs.android.demoapplication.db.async.account;
 
-import android.content.Context;
 import android.database.sqlite.SQLiteConstraintException;
 import android.os.AsyncTask;
 import android.view.View;

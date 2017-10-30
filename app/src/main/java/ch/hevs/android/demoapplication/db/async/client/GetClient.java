@@ -1,6 +1,5 @@
 package ch.hevs.android.demoapplication.db.async.client;
 
-import android.content.Context;
 import android.os.AsyncTask;
 import android.view.View;
 
