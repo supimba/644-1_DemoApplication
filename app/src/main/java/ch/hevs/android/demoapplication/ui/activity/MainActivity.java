@@ -77,15 +77,14 @@ public class MainActivity extends AppCompatActivity
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
-        prepareDrawerMenu(navigationView.getMenu());
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        navigationView.setNavigationItemSelectedListener(this);
+        prepareDrawerMenu(navigationView.getMenu());
     }
 
     @Override
@@ -173,7 +172,7 @@ public class MainActivity extends AppCompatActivity
             client.setVisible(false);
         } else {
             try {
-                mLoggedIn = new GetClient(getCurrentFocus()).execute(mLoggedInEmail).get();
+                mLoggedIn = new GetClient(getWindow().getDecorView()).execute(mLoggedInEmail).get();
             } catch (InterruptedException | ExecutionException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
