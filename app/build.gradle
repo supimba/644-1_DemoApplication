@@ -17,6 +17,7 @@ android {
                                      "$projectDir/schemas".toString()]
             }
         }
+        resConfigs "auto"
     }
     buildTypes {
         release {
@@ -44,6 +45,6 @@ dependencies {
     annotationProcessor "android.arch.lifecycle:compiler:$arc_comp_version"
     annotationProcessor "android.arch.persistence.room:compiler:$arc_comp_version"
     // FirebaseUI components
-    compile "com.firebaseui:firebase-ui-auth:$firebase_version"
-    compile "com.firebaseui:firebase-ui-firestore:$firebase_version"
+    compile "com.firebaseui:firebase-ui-auth:$firebase_ui_version"
+    compile "com.firebaseui:firebase-ui-database:$firebase_ui_version"
 }

@@ -34,7 +34,7 @@ public class ClientEntity implements Client {
         firstName = client.getFirstName();
         lastName = client.getLastName();
         password = client.getPassword();
-        admin = client.isAdmin();
+        admin = client.getAdmin();
     }
 
     @Override
@@ -74,7 +74,7 @@ public class ClientEntity implements Client {
     }
 
     @Override
-    public Boolean isAdmin() {
+    public Boolean getAdmin() {
         return admin;
     }
 

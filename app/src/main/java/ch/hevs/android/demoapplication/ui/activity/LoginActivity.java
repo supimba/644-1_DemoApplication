@@ -133,7 +133,7 @@ public class LoginActivity extends AppCompatActivity {
                     // All objects are from android.context.Context
                     SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
                     editor.putString(MainActivity.PREFS_USER, client.getEmail());
-                    editor.putBoolean(MainActivity.PREFS_ADM, client.isAdmin());
+                    editor.putBoolean(MainActivity.PREFS_ADM, client.getAdmin());
                     editor.apply();
 
                     Intent intent = new Intent(LoginActivity.this, MainActivity.class);

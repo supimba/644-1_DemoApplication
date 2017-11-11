@@ -115,7 +115,7 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
                             && Objects.equals(newClient.getFirstName(), oldClient.getFirstName())
                             && Objects.equals(newClient.getLastName(), oldClient.getLastName())
                             && newClient.getPassword() == oldClient.getPassword()
-                            && newClient.isAdmin() == oldClient.isAdmin();
+                            && newClient.getAdmin() == oldClient.getAdmin();
                 }
                 return false;
             }

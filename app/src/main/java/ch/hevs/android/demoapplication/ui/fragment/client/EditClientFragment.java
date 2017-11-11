@@ -135,7 +135,7 @@ public class EditClientFragment extends Fragment {
         mEtEmail.setFocusable(false);
         mEtEmail.setLongClickable(false);
         mEtEmail.setEnabled(false);
-        mAdminSwitch.setChecked(mClient.isAdmin());
+        mAdminSwitch.setChecked(mClient.getAdmin());
         if (!mAdminMode) {
             mAdminSwitch.setVisibility(View.GONE);
         }
