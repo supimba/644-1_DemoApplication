@@ -5,5 +5,5 @@ public interface Client {
     String getFirstName();
     String getLastName();
     String getPassword();
-    Boolean isAdmin();
+    Boolean getAdmin();
 }
