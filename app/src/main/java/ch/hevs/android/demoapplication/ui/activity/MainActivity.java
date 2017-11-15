@@ -25,7 +25,6 @@ import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.async.client.GetClient;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.fragment.MainFragment;
 import ch.hevs.android.demoapplication.ui.fragment.account.AccountsFragment;
@@ -171,11 +170,13 @@ public class MainActivity extends AppCompatActivity
         if (mAdmin) {
             client.setVisible(false);
         } else {
+            /* TODO: Change to Firebase
             try {
                 mLoggedIn = new GetClient(getWindow().getDecorView()).execute(mLoggedInEmail).get();
             } catch (InterruptedException | ExecutionException e) {
                 Log.e(TAG, e.getMessage(), e);
             }
+            */
             clients.setVisible(false);
         }
     }

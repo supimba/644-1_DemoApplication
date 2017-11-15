@@ -1,9 +1,5 @@
 package ch.hevs.android.demoapplication.db.entity;
 
-import android.arch.persistence.room.Entity;
-import android.arch.persistence.room.ForeignKey;
-import android.arch.persistence.room.Index;
-import android.arch.persistence.room.PrimaryKey;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.database.Exclude;
@@ -14,27 +10,6 @@ import java.util.Map;
 
 import ch.hevs.android.demoapplication.model.Account;
 
-/**
- * https://developer.android.com/reference/android/arch/persistence/room/Entity.html
- *
- * interesting: owner column references a foreign key, that's why this column is indexed.
- * If not indexed, it might trigger full table scans whenever parent table is modified so you are
- * highly advised to create an index that covers this column.
- */
-@Entity(tableName = "accounts",
-        primaryKeys = {"id"},
-        foreignKeys =
-        @ForeignKey(
-                entity = ClientEntity.class,
-                parentColumns = "id",
-                childColumns = "owner",
-                onDelete = ForeignKey.CASCADE
-        ),
-        indices = {
-        @Index(
-                value = {"owner"}
-        )}
-)
 @IgnoreExtraProperties
 public class AccountEntity implements Account {
     @NonNull

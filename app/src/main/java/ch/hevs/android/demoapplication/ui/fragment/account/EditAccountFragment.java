@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.async.account.GetAccount;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
@@ -100,11 +99,12 @@ public class EditAccountFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initializeForm();
         if (mEditMode) {
+            /* TODO: Change to Firebase
             try {
                 mAccount = new GetAccount(getView()).execute(mAccountId).get();
             } catch (InterruptedException | ExecutionException e) {
                 Log.e(TAG, e.getMessage(), e);
-            }
+            }*/
             populateForm();
         }
     }

@@ -19,7 +19,6 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.async.client.GetClient;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.viewmodel.ClientListViewModel;
@@ -100,11 +99,12 @@ public class EditClientFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initializeForm();
         if (mEditMode) {
+            /* TODO: Change to Firebase
             try {
                 mClient = new GetClient(getView()).execute(mClientEmail).get();
             } catch (InterruptedException | ExecutionException e) {
                 Log.e(TAG, e.getMessage(), e);
-            }
+            }*/
             populateForm();
         }
     }

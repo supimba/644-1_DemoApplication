@@ -15,10 +15,6 @@ import android.view.View;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import ch.hevs.android.demoapplication.db.DatabaseCreator;
-import ch.hevs.android.demoapplication.db.async.account.CreateAccount;
-import ch.hevs.android.demoapplication.db.async.account.DeleteAccount;
-import ch.hevs.android.demoapplication.db.async.account.UpdateAccount;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
 
 public class AccountListViewModel extends AndroidViewModel {
@@ -37,9 +33,10 @@ public class AccountListViewModel extends AndroidViewModel {
     public AccountListViewModel(@NonNull Application application) {
         super(application);
 
-        final DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
-
-        LiveData<Boolean> databaseCreated = databaseCreator.isDatabaseCreated();
+        // TODO: Change to Firebase
+        mObservableAccounts = new LiveData<List<AccountEntity>>() {
+        };
+        /* TODO: Change to Firebase
         mObservableAccounts = Transformations.switchMap(databaseCreated,
                 new Function<Boolean, LiveData<List<AccountEntity>>>() {
                     @Override
@@ -55,12 +52,17 @@ public class AccountListViewModel extends AndroidViewModel {
                 });
 
         databaseCreator.createDb(this.getApplication());
+        */
     }
 
     public AccountListViewModel(@NonNull Application application,
                                 final String owner) {
         super(application);
 
+        // TODO: Change to Firebase
+        mObservableAccounts = new LiveData<List<AccountEntity>>() {
+        };
+        /* TODO: Change to Firebase
         final DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
 
         LiveData<Boolean> databaseCreated = databaseCreator.isDatabaseCreated();
@@ -79,6 +81,7 @@ public class AccountListViewModel extends AndroidViewModel {
                 });
 
         databaseCreator.createDb(this.getApplication());
+        */
     }
 
     /**
@@ -89,24 +92,30 @@ public class AccountListViewModel extends AndroidViewModel {
     }
 
     public void deleteAccount(View view, AccountEntity account) {
+        /* TODO: Change to Firebase
         new DeleteAccount(view).execute(account);
+        */
         mObservableAccounts.getValue().remove(account);
     }
 
     public void addAccount(View view, AccountEntity account) {
+        /* TODO: Change to Firebase
         try {
             new CreateAccount(view).execute(account).get();
-            /*String id = new CreateAccount(view).execute(account).get();
-            account.setId(id);*/
+            String id = new CreateAccount(view).execute(account).get();
+            account.setId(id);
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
             return;
         }
+        */
         mObservableAccounts.getValue().add(account);
     }
 
     public void updateAccount(View view, AccountEntity account) {
+        /* TODO: Change to Firebase
         new UpdateAccount(view).execute(account);
+        */
         mObservableAccounts.getValue().set(mObservableAccounts.getValue().indexOf(account), account);
     }
 

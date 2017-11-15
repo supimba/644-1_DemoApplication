@@ -21,10 +21,6 @@ import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.ListAdapter;
-import ch.hevs.android.demoapplication.db.async.account.GetOwnAccounts;
-import ch.hevs.android.demoapplication.db.async.account.TransactionAccount;
-import ch.hevs.android.demoapplication.db.async.client.GetClient;
-import ch.hevs.android.demoapplication.db.async.client.GetClients;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
@@ -76,11 +72,12 @@ public class TransactionFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        /* TODO: Change to Firebase
         try {
             mLoggedIn = new GetClient(getView()).execute(mUser).get();
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
-        }
+        }*/
         if (mLoggedIn != null) {
             populateForm();
             Log.i(TAG, "Form populated.");
@@ -91,9 +88,11 @@ public class TransactionFragment extends Fragment {
     }
 
     private void populateForm() {
+        /* TODO: Change to Firebase
         try {
             mOwnAccounts = new GetOwnAccounts(getView()).execute(mLoggedIn.getId()).get();
             mClients = new GetClients(getView()).execute().get();
+            */
             mClients.remove(mLoggedIn);
             for (int i = 0; i < mClients.size(); i++) {
                 if (mClients.get(i).getId().equals(mLoggedIn.getId())) {
@@ -136,14 +135,17 @@ public class TransactionFragment extends Fragment {
                     toast.show();
                 }
             });
+        /* TODO: Change to Firebase
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
-        }
+        }*/
     }
 
     private void populateToAccount(ClientEntity recipient) {
+        /* TODO: Change to Firebase
         try {
             mClientAccounts = new GetOwnAccounts(getView()).execute(recipient.getId()).get();
+            */
             mSpinnerAccount = (Spinner) getView().findViewById(R.id.spinner_toAcc);
             mAdapterAccount = new ListAdapter<>(getContext(), R.layout.row_client, mClientAccounts);
             mSpinnerAccount.setAdapter(mAdapterAccount);
@@ -156,9 +158,10 @@ public class TransactionFragment extends Fragment {
                 @Override
                 public void onNothingSelected(AdapterView<?> adapterView) { }
             });
+        /* TODO: Change to Firebase
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
-        }
+        }*/
     }
 
     private void executeTransaction() {
@@ -175,6 +178,8 @@ public class TransactionFragment extends Fragment {
         }
         mFromAccount.setBalance(mFromAccount.getBalance() - amount);
         mToAccount.setBalance(mToAccount.getBalance() + amount);
+        /* TODO: Change to Firebase
         new TransactionAccount(getView()).execute(Pair.create(mFromAccount, mToAccount));
+        */
     }
 }

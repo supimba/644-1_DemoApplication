@@ -1,7 +1,6 @@
 package ch.hevs.android.demoapplication.db.entity;
 
 import android.arch.persistence.room.ColumnInfo;
-import android.arch.persistence.room.Entity;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.database.Exclude;
@@ -12,10 +11,6 @@ import java.util.Map;
 
 import ch.hevs.android.demoapplication.model.Client;
 
-/**
- * https://developer.android.com/reference/android/arch/persistence/room/Entity.html
- */
-@Entity(tableName = "clients", primaryKeys = {"id"})
 @IgnoreExtraProperties
 public class ClientEntity implements Client {
 

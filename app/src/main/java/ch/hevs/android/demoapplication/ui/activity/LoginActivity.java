@@ -107,38 +107,8 @@ public class LoginActivity extends AppCompatActivity {
                                 mEmailView.requestFocus();
                                 mPasswordView.setText("");
                             }
-                            // ...
                         }
                     });
-            /*ClientEntity client = null;
-            try {
-                client = new GetClient(getCurrentFocus()).execute(email).get();
-            } catch (ExecutionException | InterruptedException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-            if (client != null) {
-                if (client.getPassword().equals(password)) {
-                    // We need an Editor object to make preference changes.
-                    // All objects are from android.context.Context
-                    SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
-                    editor.putString(MainActivity.PREFS_USER, client.getId());
-                    editor.putBoolean(MainActivity.PREFS_ADM, client.getAdmin());
-                    editor.apply();
-
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    mEmailView.setText("");
-                    mPasswordView.setText("");
-                } else {
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
-                    mPasswordView.setText("");
-                }
-            } else {
-                mEmailView.setError(getString(R.string.error_invalid_email));
-                mEmailView.requestFocus();
-                mPasswordView.setText("");
-            }*/
         }
     }
 

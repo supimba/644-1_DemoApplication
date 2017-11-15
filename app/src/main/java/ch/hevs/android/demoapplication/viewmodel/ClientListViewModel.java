@@ -14,10 +14,6 @@ import android.view.View;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-import ch.hevs.android.demoapplication.db.DatabaseCreator;
-import ch.hevs.android.demoapplication.db.async.client.CreateClient;
-import ch.hevs.android.demoapplication.db.async.client.DeleteClient;
-import ch.hevs.android.demoapplication.db.async.client.UpdateClient;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 
 public class ClientListViewModel extends AndroidViewModel {
@@ -35,6 +31,11 @@ public class ClientListViewModel extends AndroidViewModel {
     public ClientListViewModel(@NonNull Application application) {
         super(application);
 
+        // TODO: Change to Firebase
+        mObservableClients = new LiveData<List<ClientEntity>>() {
+        };
+
+        /* TODO: Change to Firebase
         final DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
 
         LiveData<Boolean> databaseCreated = databaseCreator.isDatabaseCreated();
@@ -53,6 +54,7 @@ public class ClientListViewModel extends AndroidViewModel {
                 });
 
         databaseCreator.createDb(this.getApplication());
+        */
     }
 
     /**
@@ -63,24 +65,33 @@ public class ClientListViewModel extends AndroidViewModel {
     }
 
     public void deleteClient(View view, ClientEntity client) {
+        /* TODO: Change to Firebase
         new DeleteClient(view).execute(client);
+        */
         mObservableClients.getValue().remove(client);
     }
 
     public boolean addClient(View view, ClientEntity client) throws SQLiteConstraintException {
         boolean response;
+        /* TODO: Change to Firebase
         try {
             response = new CreateClient(view).execute(client).get();
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
             return false;
         }
+        */
         mObservableClients.getValue().add(client);
+        /* TODO: Change to Firebase
         return response;
+        */
+        return true;
     }
 
     public void updateClient(View view, ClientEntity client) {
+        /* TODO: Change to Firebase
         new UpdateClient(view).execute(client);
+        */
         mObservableClients.getValue().set(mObservableClients.getValue().indexOf(client), client);
     }
 }
