@@ -53,9 +53,9 @@ public class EditAccountFragment extends Fragment {
         Bundle args = new Bundle();
 
         if (account != null) {
-            args.putLong(ARG_PARAM1, account.getId());
+            args.putString(ARG_PARAM1, account.getId());
         } else {
-            args.putLong(ARG_PARAM1, -1L);
+            args.putString(ARG_PARAM1, "");
         }
         fragment.setArguments(args);
         return fragment;

@@ -1,10 +1,7 @@
 package ch.hevs.android.demoapplication.ui.activity;
 
-import android.arch.lifecycle.Observer;
-import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -15,11 +12,15 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ProgressBar;
 
-import java.util.concurrent.ExecutionException;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.DatabaseCreator;
-import ch.hevs.android.demoapplication.db.async.client.GetClient;
 import ch.hevs.android.demoapplication.db.entity.ClientEntity;
 
 /**
@@ -33,13 +34,22 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPasswordView;
     private ProgressBar mProgressBar;
 
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        final DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
-        databaseCreator.createDb(this.getApplication());
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
+        ClientEntity client1 = new ClientEntity();
+        client1.setFirstName("Michel");
+        client1.setLastName("Platini");
+        client1.setAdmin(false);
+        mDatabase.child("clients").child("nriPvJL5FXOOccEHuan1WSCM7ms2").setValue(client1);
 
         mProgressBar = findViewById(R.id.progress);
 
@@ -58,25 +68,15 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    protected void onStart() {
+        super.onStart();
+        // Check if user is signed in (non-null) and update UI accordingly.
+        FirebaseUser currentUser = mAuth.getCurrentUser();
     }
 
     @Override
-    protected void onPostResume() {
-        super.onPostResume();
-
-        mProgressBar.setVisibility(View.VISIBLE);
-
-        final DatabaseCreator databaseCreator = DatabaseCreator.getInstance(this.getApplication());
-        databaseCreator.isDatabaseCreated().observe(this, new Observer<Boolean>() {
-            @Override
-            public void onChanged(@Nullable Boolean aBoolean) {
-                if (Boolean.TRUE.equals(aBoolean)) {
-                    mProgressBar.setVisibility(View.GONE);
-                }
-            }
-        });
+    protected void onResume() {
+        super.onResume();
     }
 
     /**
@@ -85,14 +85,67 @@ public class LoginActivity extends AppCompatActivity {
      * errors are presented and no actual login attempt is made.
      */
     private void attemptLogin() {
-
-        // Reset errors.
-        mEmailView.setError(null);
-        mPasswordView.setError(null);
-
         // Store values at the time of the login attempt.
         String email = mEmailView.getText().toString();
         String password = mPasswordView.getText().toString();
+
+        if (validateForm(email, password)) {
+            mProgressBar.setVisibility(View.VISIBLE);
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            mProgressBar.setVisibility(View.GONE);
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                mEmailView.setError(getString(R.string.error_invalid_email));
+                                mEmailView.requestFocus();
+                                mPasswordView.setText("");
+                            }
+                            // ...
+                        }
+                    });
+            /*ClientEntity client = null;
+            try {
+                client = new GetClient(getCurrentFocus()).execute(email).get();
+            } catch (ExecutionException | InterruptedException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            if (client != null) {
+                if (client.getPassword().equals(password)) {
+                    // We need an Editor object to make preference changes.
+                    // All objects are from android.context.Context
+                    SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
+                    editor.putString(MainActivity.PREFS_USER, client.getId());
+                    editor.putBoolean(MainActivity.PREFS_ADM, client.getAdmin());
+                    editor.apply();
+
+                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    mEmailView.setText("");
+                    mPasswordView.setText("");
+                } else {
+                    mPasswordView.setError(getString(R.string.error_incorrect_password));
+                    mPasswordView.requestFocus();
+                    mPasswordView.setText("");
+                }
+            } else {
+                mEmailView.setError(getString(R.string.error_invalid_email));
+                mEmailView.requestFocus();
+                mPasswordView.setText("");
+            }*/
+        }
+    }
+
+    private boolean validateForm(String email, String password) {
+        // Reset errors.
+        mEmailView.setError(null);
+        mPasswordView.setError(null);
 
         boolean cancel = false;
         View focusView = null;
@@ -120,37 +173,8 @@ public class LoginActivity extends AppCompatActivity {
             // There was an error; don't attempt login and focus the first
             // form field with an error.
             focusView.requestFocus();
-        } else {
-            ClientEntity client = null;
-            try {
-                client = new GetClient(getCurrentFocus()).execute(email).get();
-            } catch (ExecutionException | InterruptedException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-            if (client != null) {
-                if (client.getPassword().equals(password)) {
-                    // We need an Editor object to make preference changes.
-                    // All objects are from android.context.Context
-                    SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
-                    editor.putString(MainActivity.PREFS_USER, client.getEmail());
-                    editor.putBoolean(MainActivity.PREFS_ADM, client.getAdmin());
-                    editor.apply();
-
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
-                    mEmailView.setText("");
-                    mPasswordView.setText("");
-                } else {
-                    mPasswordView.setError(getString(R.string.error_incorrect_password));
-                    mPasswordView.requestFocus();
-                    mPasswordView.setText("");
-                }
-            } else {
-                mEmailView.setError(getString(R.string.error_invalid_email));
-                mEmailView.requestFocus();
-                mPasswordView.setText("");
-            }
         }
+        return !cancel;
     }
 
     private boolean isEmailValid(String email) {

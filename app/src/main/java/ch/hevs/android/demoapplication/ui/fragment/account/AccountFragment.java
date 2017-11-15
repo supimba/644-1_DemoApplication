@@ -52,7 +52,7 @@ public class AccountFragment extends Fragment {
     public static AccountFragment newInstance(AccountEntity account) {
         AccountFragment fragment = new AccountFragment();
         Bundle args = new Bundle();
-        args.putLong(ARG_PARAM1, account.getId());
+        args.putString(ARG_PARAM1, account.getId());
         fragment.setArguments(args);
         return fragment;
     }

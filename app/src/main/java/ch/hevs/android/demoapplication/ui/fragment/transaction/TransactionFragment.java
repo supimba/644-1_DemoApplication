@@ -92,11 +92,11 @@ public class TransactionFragment extends Fragment {
 
     private void populateForm() {
         try {
-            mOwnAccounts = new GetOwnAccounts(getView()).execute(mLoggedIn.getEmail()).get();
+            mOwnAccounts = new GetOwnAccounts(getView()).execute(mLoggedIn.getId()).get();
             mClients = new GetClients(getView()).execute().get();
             mClients.remove(mLoggedIn);
             for (int i = 0; i < mClients.size(); i++) {
-                if (mClients.get(i).getEmail().equals(mLoggedIn.getEmail())) {
+                if (mClients.get(i).getId().equals(mLoggedIn.getId())) {
                     mClients.remove(i);
                     break;
                 }
@@ -143,7 +143,7 @@ public class TransactionFragment extends Fragment {
 
     private void populateToAccount(ClientEntity recipient) {
         try {
-            mClientAccounts = new GetOwnAccounts(getView()).execute(recipient.getEmail()).get();
+            mClientAccounts = new GetOwnAccounts(getView()).execute(recipient.getId()).get();
             mSpinnerAccount = (Spinner) getView().findViewById(R.id.spinner_toAcc);
             mAdapterAccount = new ListAdapter<>(getContext(), R.layout.row_client, mClientAccounts);
             mSpinnerAccount.setAdapter(mAdapterAccount);

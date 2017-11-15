@@ -9,7 +9,7 @@ import java.lang.ref.WeakReference;
 import ch.hevs.android.demoapplication.db.DatabaseCreator;
 import ch.hevs.android.demoapplication.db.entity.AccountEntity;
 
-public class CreateAccount extends AsyncTask<AccountEntity, Void, Long> {
+public class CreateAccount extends AsyncTask<AccountEntity, Void, Void> {
 
     // Weak references will still allow the Activity to be garbage-collected
     private final WeakReference<View> mView;
@@ -19,9 +19,10 @@ public class CreateAccount extends AsyncTask<AccountEntity, Void, Long> {
     }
 
     @Override
-    protected Long doInBackground(AccountEntity... params) throws SQLiteConstraintException {
+    protected Void doInBackground(AccountEntity... params) throws SQLiteConstraintException {
         DatabaseCreator dbCreator = DatabaseCreator.getInstance(mView.get().getContext());
-        return dbCreator.getDatabase().accountDao().insert(params[0]);
+        dbCreator.getDatabase().accountDao().insert(params[0]);
+        return null;
     }
 
 }

@@ -4,6 +4,13 @@ import android.arch.persistence.room.Entity;
 import android.arch.persistence.room.ForeignKey;
 import android.arch.persistence.room.Index;
 import android.arch.persistence.room.PrimaryKey;
+import android.support.annotation.NonNull;
+
+import com.google.firebase.database.Exclude;
+import com.google.firebase.database.IgnoreExtraProperties;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import ch.hevs.android.demoapplication.model.Account;
 
@@ -15,10 +22,11 @@ import ch.hevs.android.demoapplication.model.Account;
  * highly advised to create an index that covers this column.
  */
 @Entity(tableName = "accounts",
+        primaryKeys = {"id"},
         foreignKeys =
         @ForeignKey(
                 entity = ClientEntity.class,
-                parentColumns = "email",
+                parentColumns = "id",
                 childColumns = "owner",
                 onDelete = ForeignKey.CASCADE
         ),
@@ -27,11 +35,13 @@ import ch.hevs.android.demoapplication.model.Account;
                 value = {"owner"}
         )}
 )
+@IgnoreExtraProperties
 public class AccountEntity implements Account {
-    @PrimaryKey(autoGenerate = true)
-    private Long id;
+    @NonNull
+    private String id;
     private String name;
     private Double balance;
+    @Exclude
     private String owner;
 
     public AccountEntity() {
@@ -45,11 +55,11 @@ public class AccountEntity implements Account {
     }
 
     @Override
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
@@ -87,5 +97,15 @@ public class AccountEntity implements Account {
         if (!(obj instanceof AccountEntity)) return false;
         AccountEntity o = (AccountEntity) obj;
         return o.getId().equals(this.getId());
+    }
+
+    @Exclude
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<>();
+        result.put("id", id);
+        result.put("name", name);
+        result.put("balance", balance);
+
+        return result;
     }
 }

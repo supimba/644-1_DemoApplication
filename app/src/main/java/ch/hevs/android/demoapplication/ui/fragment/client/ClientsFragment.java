@@ -104,7 +104,7 @@ public class ClientsFragment extends Fragment {
                 @Override
                 public void onItemClick(View v, int position) {
                     Log.d(TAG, "clicked position:" + position);
-                    Log.d(TAG, "clicked on: " + mClients.get(position).getEmail());
+                    Log.d(TAG, "clicked on: " + mClients.get(position).getId());
 
                     getActivity().getSupportFragmentManager().beginTransaction()
                             .replace(R.id.flContent, EditClientFragment.newInstance(mClients.get(position)), "EditClient")
@@ -115,7 +115,7 @@ public class ClientsFragment extends Fragment {
                 @Override
                 public void onItemLongClick(View v, int position) {
                     Log.d(TAG, "longClicked position:" + position);
-                    Log.d(TAG, "longClicked on: " + mClients.get(position).getEmail());
+                    Log.d(TAG, "longClicked on: " + mClients.get(position).getId());
 
                     createDeleteDialog(position);
                 }
@@ -132,7 +132,7 @@ public class ClientsFragment extends Fragment {
         alertDialog.setCancelable(false);
 
         final TextView deleteMessage = (TextView) view.findViewById(R.id.tv_delete_item);
-        deleteMessage.setText(String.format(getString(R.string.client_delete_msg), client.getEmail()));
+        deleteMessage.setText(String.format(getString(R.string.client_delete_msg), client.getId()));
 
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_accept), new DialogInterface.OnClickListener() {
             @Override

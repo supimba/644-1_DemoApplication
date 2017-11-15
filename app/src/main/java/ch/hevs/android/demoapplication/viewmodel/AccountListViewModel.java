@@ -95,8 +95,9 @@ public class AccountListViewModel extends AndroidViewModel {
 
     public void addAccount(View view, AccountEntity account) {
         try {
-            Long id = new CreateAccount(view).execute(account).get();
-            account.setId(id);
+            new CreateAccount(view).execute(account).get();
+            /*String id = new CreateAccount(view).execute(account).get();
+            account.setId(id);*/
         } catch (InterruptedException | ExecutionException e) {
             Log.e(TAG, e.getMessage(), e);
             return;

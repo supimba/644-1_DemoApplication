@@ -15,6 +15,6 @@ public class ClientWithAccounts {
     @Embedded
     public ClientEntity client;
 
-    @Relation(parentColumn = "email", entityColumn = "owner", entity = AccountEntity.class)
+    @Relation(parentColumn = "id", entityColumn = "owner", entity = AccountEntity.class)
     public List<AccountEntity> accounts;
 }

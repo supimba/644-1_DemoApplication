@@ -58,7 +58,7 @@ public class EditClientFragment extends Fragment {
         Bundle args = new Bundle();
 
         if (client != null) {
-            args.putString(ARG_PARAM1, client.getEmail());
+            args.putString(ARG_PARAM1, client.getId());
         } else {
             args.putString(ARG_PARAM1, "create");
         }
@@ -131,7 +131,7 @@ public class EditClientFragment extends Fragment {
     private void populateForm() {
         mEtFirstName.setText(mClient.getFirstName());
         mEtLastName.setText(mClient.getLastName());
-        mEtEmail.setText(mClient.getEmail());
+        mEtEmail.setText(mClient.getId());
         mEtEmail.setFocusable(false);
         mEtEmail.setLongClickable(false);
         mEtEmail.setEnabled(false);
@@ -171,7 +171,7 @@ public class EditClientFragment extends Fragment {
             ClientEntity newClient = new ClientEntity();
             newClient.setFirstName(firstName);
             newClient.setLastName(lastName);
-            newClient.setEmail(email);
+            newClient.setId(email);
             newClient.setPassword(pwd);
             newClient.setAdmin(admin);
 

@@ -92,8 +92,8 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
                             ((AccountEntity)data.get(newItemPosition)).getId();
                 }
                 if (mData instanceof ClientEntity) {
-                    return ((ClientEntity)mData.get(oldItemPosition)).getEmail().equals(
-                            ((ClientEntity)data.get(newItemPosition)).getEmail());
+                    return ((ClientEntity)mData.get(oldItemPosition)).getId().equals(
+                            ((ClientEntity)data.get(newItemPosition)).getId());
                 }
                 return false;
             }
@@ -106,12 +106,13 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
                     return newAccount.getId() == oldAccount.getId()
                             && Objects.equals(newAccount.getName(), oldAccount.getName())
                             && Objects.equals(newAccount.getBalance(), oldAccount.getBalance())
-                            && newAccount.getOwner() == oldAccount.getOwner();
+                            //&& newAccount.getOwner() == oldAccount.getOwner()
+                            ;
                 }
                 if (mData instanceof ClientEntity) {
                     ClientEntity newClient = (ClientEntity) data.get(newItemPosition);
                     ClientEntity oldClient = (ClientEntity) mData.get(newItemPosition);
-                    return Objects.equals(newClient.getEmail(), oldClient.getEmail())
+                    return Objects.equals(newClient.getId(), oldClient.getId())
                             && Objects.equals(newClient.getFirstName(), oldClient.getFirstName())
                             && Objects.equals(newClient.getLastName(), oldClient.getLastName())
                             && newClient.getPassword() == oldClient.getPassword()
