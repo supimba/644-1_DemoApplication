@@ -3,20 +3,17 @@ package ch.hevs.android.demoapplication.db.entity;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.database.Exclude;
-import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.HashMap;
 import java.util.Map;
 
 import ch.hevs.android.demoapplication.model.Account;
 
-@IgnoreExtraProperties
 public class AccountEntity implements Account {
     @NonNull
     private String id;
     private String name;
     private Double balance;
-    @Exclude
     private String owner;
 
     public AccountEntity() {
@@ -29,6 +26,7 @@ public class AccountEntity implements Account {
         owner = account.getOwner();
     }
 
+    @Exclude
     @Override
     public String getId() {
         return id;
@@ -56,6 +54,7 @@ public class AccountEntity implements Account {
         this.balance = balance;
     }
 
+    @Exclude
     @Override
     public String getOwner() {
         return owner;
@@ -77,7 +76,6 @@ public class AccountEntity implements Account {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("id", id);
         result.put("name", name);
         result.put("balance", balance);
 

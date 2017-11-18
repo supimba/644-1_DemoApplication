@@ -11,7 +11,6 @@ import java.util.Map;
 
 import ch.hevs.android.demoapplication.model.Client;
 
-@IgnoreExtraProperties
 public class ClientEntity implements Client {
 
     @NonNull
@@ -23,7 +22,6 @@ public class ClientEntity implements Client {
     @ColumnInfo(name = "last_name")
     private String lastName;
 
-    @Exclude
     private String password;
 
     @ColumnInfo(name = "admin")
@@ -40,6 +38,7 @@ public class ClientEntity implements Client {
         admin = client.getAdmin();
     }
 
+    @Exclude
     @Override
     public String getId() {
         return id;
@@ -67,6 +66,7 @@ public class ClientEntity implements Client {
         this.lastName = lastName;
     }
 
+    @Exclude
     @Override
     public String getPassword() {
         return password;
@@ -97,7 +97,6 @@ public class ClientEntity implements Client {
     @Exclude
     public Map<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<>();
-        result.put("id", id);
         result.put("firstName", firstName);
         result.put("lastName", lastName);
         result.put("admin", admin);
