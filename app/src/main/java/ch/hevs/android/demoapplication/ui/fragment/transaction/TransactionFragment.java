@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,13 +15,14 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.ListAdapter;
-import ch.hevs.android.demoapplication.db.entity.AccountEntity;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.AccountEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 
@@ -54,8 +54,7 @@ public class TransactionFragment extends Fragment {
         super.onCreate(savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_transaction));
 
-        SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        mUser = settings.getString(MainActivity.PREFS_USER, null);
+        mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (mUser == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);

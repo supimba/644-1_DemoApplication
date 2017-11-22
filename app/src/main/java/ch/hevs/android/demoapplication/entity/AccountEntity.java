@@ -1,4 +1,4 @@
-package ch.hevs.android.demoapplication.db.entity;
+package ch.hevs.android.demoapplication.entity;
 
 import android.support.annotation.NonNull;
 

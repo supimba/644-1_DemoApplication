@@ -21,11 +21,12 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.Locale;
-import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.fragment.MainFragment;
 import ch.hevs.android.demoapplication.ui.fragment.account.AccountsFragment;
 import ch.hevs.android.demoapplication.ui.fragment.client.ClientsFragment;
@@ -39,7 +40,6 @@ public class MainActivity extends AppCompatActivity
     private final String BACK_STACK_ROOT_TAG = "MAIN";
 
     public static final String PREFS_NAME = "SharedPrefs";
-    public static final String PREFS_USER = "LoggedIn";
     public static final String PREFS_ADM = "UserPermission";
     public static final String PREFS_LNG = "Language";
 
@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity
 
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         mAdmin = settings.getBoolean(PREFS_ADM, false);
-        mLoggedInEmail = settings.getString(PREFS_USER, null);
+        mLoggedInEmail = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (savedInstanceState == null) {
             Fragment fragment = null;
@@ -213,9 +213,9 @@ public class MainActivity extends AppCompatActivity
 
     private void logout() {
         SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
-        editor.remove(PREFS_USER);
         editor.remove(PREFS_ADM);
         editor.apply();
+        FirebaseAuth.getInstance().signOut();
 
         Intent intent = new Intent(this, LoginActivity.class);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);

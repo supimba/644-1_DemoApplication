@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Objects;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.entity.AccountEntity;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.AccountEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
 
 public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.ViewHolder> {

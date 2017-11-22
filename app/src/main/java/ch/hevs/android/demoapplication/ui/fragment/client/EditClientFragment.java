@@ -6,7 +6,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +15,9 @@ import android.widget.Switch;
 import android.widget.Toast;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.viewmodel.ClientListViewModel;
 

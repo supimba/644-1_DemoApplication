@@ -1,20 +1,16 @@
 package ch.hevs.android.demoapplication.viewmodel;
 
 import android.app.Application;
-import android.arch.core.util.Function;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
-import android.arch.lifecycle.Transformations;
 import android.database.sqlite.SQLiteConstraintException;
 import android.support.annotation.NonNull;
-import android.util.Log;
 import android.view.View;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 
 public class ClientListViewModel extends AndroidViewModel {
 

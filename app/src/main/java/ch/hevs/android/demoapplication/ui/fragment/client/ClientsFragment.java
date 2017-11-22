@@ -20,12 +20,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.RecyclerAdapter;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
@@ -47,8 +49,8 @@ public class ClientsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.clients_fragment_title));
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        String user = settings.getString(MainActivity.PREFS_USER, null);
         Boolean admin = settings.getBoolean(MainActivity.PREFS_ADM, false);
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
         if (user == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);

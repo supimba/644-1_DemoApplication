@@ -1,7 +1,10 @@
 package ch.hevs.android.demoapplication.ui.activity;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.TextInputEditText;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Log;
@@ -9,7 +12,6 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ProgressBar;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -25,8 +27,8 @@ import java.util.List;
 import java.util.UUID;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.entity.AccountEntity;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.AccountEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 
 /**
  * A login screen that offers login via email/password.
@@ -36,7 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
 
     private AutoCompleteTextView mEmailView;
-    private EditText mPasswordView;
+    private TextInputEditText mPasswordView;
     private ProgressBar mProgressBar;
 
     private FirebaseAuth mAuth;
@@ -99,11 +101,23 @@ public class LoginActivity extends AppCompatActivity {
                             mProgressBar.setVisibility(View.GONE);
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "createUserWithEmail:success");
+                                Log.d(TAG, "loginUserWithEmail: success");
                                 FirebaseUser user = mAuth.getCurrentUser();
+
+                                // We need an Editor object to make preference changes.
+                                // All objects are from android.context.Context
+                                SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
+                                // TODO: Check Admin rights of user in Firebase
+                                editor.putBoolean(MainActivity.PREFS_ADM, false);
+                                editor.apply();
+
+                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                startActivity(intent);
+                                mEmailView.setText("");
+                                mPasswordView.setText("");
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                Log.w(TAG, "loginUserWithEmail: failure", task.getException());
                                 mEmailView.setError(getString(R.string.error_invalid_email));
                                 mEmailView.requestFocus();
                                 mPasswordView.setText("");

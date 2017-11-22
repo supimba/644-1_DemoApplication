@@ -1,10 +1,9 @@
-package ch.hevs.android.demoapplication.db.entity;
+package ch.hevs.android.demoapplication.entity;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.support.annotation.NonNull;
 
 import com.google.firebase.database.Exclude;
-import com.google.firebase.database.IgnoreExtraProperties;
 
 import java.util.HashMap;
 import java.util.Map;

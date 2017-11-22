@@ -4,7 +4,6 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
@@ -20,12 +19,14 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.RecyclerAdapter;
-import ch.hevs.android.demoapplication.db.entity.AccountEntity;
+import ch.hevs.android.demoapplication.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
@@ -49,8 +50,7 @@ public class AccountsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.accounts_fragment_title));
-        SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        String user = settings.getString(MainActivity.PREFS_USER, null);
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (user == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
@@ -97,8 +97,7 @@ public class AccountsFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (mRecyclerView != null) {
-            SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
-            String user = settings.getString(MainActivity.PREFS_USER, null);
+            String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
             observeViewModel(mViewModel);
             if (mAccounts == null) {
                 mAccounts = new ArrayList<>();

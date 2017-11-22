@@ -14,8 +14,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.entity.AccountEntity;
-import ch.hevs.android.demoapplication.db.entity.ClientEntity;
+import ch.hevs.android.demoapplication.entity.AccountEntity;
+import ch.hevs.android.demoapplication.entity.ClientEntity;
 
 public class ListAdapter<T> extends ArrayAdapter<T> {
 

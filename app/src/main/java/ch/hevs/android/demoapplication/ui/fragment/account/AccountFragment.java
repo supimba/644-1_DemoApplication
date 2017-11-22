@@ -4,6 +4,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -17,12 +18,17 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
 import java.text.NumberFormat;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.db.entity.AccountEntity;
+import ch.hevs.android.demoapplication.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
@@ -34,7 +40,8 @@ public class AccountFragment extends Fragment {
 
     private AccountListViewModel mViewModel;
     private AccountEntity mAccount;
-    private Long mAccountId;
+    private String mUser;
+    private String mAccountId;
     private TextView mTvBalance;
     private NumberFormat mDefaultFormat;
 
@@ -61,11 +68,19 @@ public class AccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_account));
 
-        if (getArguments() != null) {
-            mAccountId = getArguments().getLong(ARG_PARAM1);
+        mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+
+        if (mUser == null) {
+            Intent intent = new Intent(getActivity(), LoginActivity.class);
+            startActivity(intent);
         }
-        mViewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
-        observeViewModel(mViewModel);
+
+        if (getArguments() != null) {
+            mAccountId = getArguments().getString(ARG_PARAM1);
+        }
+        AccountListViewModel.Factory factory = new AccountListViewModel.Factory(
+                getActivity().getApplication(), FirebaseAuth.getInstance().getCurrentUser().getUid());
+        mViewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);        observeViewModel(mViewModel);
     }
 
     @Override
@@ -78,38 +93,33 @@ public class AccountFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        mTvBalance = getActivity().findViewById(R.id.accBalance);
+        mTvBalance.setVisibility(View.INVISIBLE);
         if (mAccountId != null) {
-            /* TODO: Change to Firebase
-            try {
-                mAccount = new GetAccount(getView()).execute(mAccountId).get();
-            } catch (InterruptedException | ExecutionException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }*/
-        }
-        if (mAccount != null) {
-            mTvBalance = (TextView) getActivity().findViewById(R.id.accBalance);
-            mDefaultFormat = NumberFormat.getCurrencyInstance(MainActivity.getCurrentLocale(getContext()));
-            mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
+            FirebaseDatabase.getInstance()
+                    .getReference("clients")
+                    .child(mUser)
+                    .child("accounts")
+                    .child(mAccountId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()){
+                                mAccount = dataSnapshot.getValue(AccountEntity.class);
+                                mAccount.setId(mAccountId);
+                                mAccount.setOwner(mUser);
+                                initiateView();
+                            } else {
+                                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                                startActivity(intent);
+                            }
+                        }
 
-            Button depositBtn = (Button) getActivity().findViewById(R.id.depositButton);
-            depositBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    generateDialog(R.string.action_deposit);
-                }
-            });
-
-            Button withdrawBtn = (Button) getActivity().findViewById(R.id.withdrawButton);
-            withdrawBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    generateDialog(R.string.action_withdraw);
-                }
-            });
-            Log.i(TAG, "Form populated.");
-        } else {
-            Intent intent = new Intent(getActivity(), LoginActivity.class);
-            startActivity(intent);
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.d(TAG, "getAccount: onCancelled", databaseError.toException());
+                        }
+                    });
         }
     }
 
@@ -163,5 +173,29 @@ public class AccountFragment extends Fragment {
             @Override
             public void onChanged(@Nullable List<AccountEntity> accountEntities) {}
         });
+    }
+
+    private void initiateView() {
+        ((MainActivity) getActivity()).setActionBarTitle(mAccount.getName());
+        mDefaultFormat = NumberFormat.getCurrencyInstance(MainActivity.getCurrentLocale(getContext()));
+        mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
+        mTvBalance.setVisibility(View.VISIBLE);
+
+        Button depositBtn = getActivity().findViewById(R.id.depositButton);
+        depositBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                generateDialog(R.string.action_deposit);
+            }
+        });
+
+        Button withdrawBtn = getActivity().findViewById(R.id.withdrawButton);
+        withdrawBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                generateDialog(R.string.action_withdraw);
+            }
+        });
+        Log.i(TAG, "Form populated.");
     }
 }
