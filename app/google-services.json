@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "492109815232",
+    "firebase_url": "https://group1-155309.firebaseio.com",
+    "project_id": "group1-155309",
+    "storage_bucket": "group1-155309.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:492109815232:android:96b86910d37364d1",
+        "android_client_info": {
+          "package_name": "ch.hevs.android.demoapplication"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "492109815232-ojgtmvft65c31fsv884jgi7hmntladp2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC14yV-J5g4GDKaPn2ZsNE9VBtrn5en6sQ"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
