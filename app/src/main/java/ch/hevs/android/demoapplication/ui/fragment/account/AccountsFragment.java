@@ -20,6 +20,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,15 +51,16 @@ public class AccountsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.accounts_fragment_title));
-        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (user == null) {
+        if (firebaseUser == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
+        } else {
+            AccountListViewModel.Factory factory = new AccountListViewModel.Factory(
+                    getActivity().getApplication(), firebaseUser.getUid());
+            mViewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);
         }
-        AccountListViewModel.Factory factory = new AccountListViewModel.Factory(
-                getActivity().getApplication(), user);
-        mViewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);
     }
 
     @Override
