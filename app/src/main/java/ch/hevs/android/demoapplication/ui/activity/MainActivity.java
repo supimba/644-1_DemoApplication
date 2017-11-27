@@ -22,6 +22,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Locale;
 
@@ -44,19 +48,17 @@ public class MainActivity extends AppCompatActivity
     public static final String PREFS_LNG = "Language";
 
     private Boolean mAdmin;
-    private String mLoggedInEmail;
     private ClientEntity mLoggedIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         mAdmin = settings.getBoolean(PREFS_ADM, false);
-        mLoggedInEmail = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (savedInstanceState == null) {
             Fragment fragment = null;
@@ -71,7 +73,7 @@ public class MainActivity extends AppCompatActivity
             fragmentManager.beginTransaction().replace(R.id.flContent, fragment, BACK_STACK_ROOT_TAG).commit();
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
@@ -81,7 +83,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onResume() {
         super.onResume();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         prepareDrawerMenu(navigationView.getMenu());
     }
@@ -144,7 +146,7 @@ public class MainActivity extends AppCompatActivity
         }
         fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack(BACK_STACK_ROOT_TAG).commit();
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -170,20 +172,29 @@ public class MainActivity extends AppCompatActivity
         if (mAdmin) {
             client.setVisible(false);
         } else {
-            /* TODO: Change to Firebase
-            try {
-                mLoggedIn = new GetClient(getWindow().getDecorView()).execute(mLoggedInEmail).get();
-            } catch (InterruptedException | ExecutionException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-            */
+            FirebaseDatabase.getInstance()
+                    .getReference("clients")
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                mLoggedIn = dataSnapshot.getValue(ClientEntity.class);
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.d(TAG, "getAdminRights: onCancelled", databaseError.toException());
+                        }
+                    });
             clients.setVisible(false);
         }
     }
 
     @Override
     public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
             return;

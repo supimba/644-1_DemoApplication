@@ -9,7 +9,6 @@ import android.arch.lifecycle.ViewModelProvider;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
-import android.view.View;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -90,7 +89,7 @@ public class AccountListViewModel extends AndroidViewModel {
         return mObservableAccounts;
     }
 
-    public void deleteAccount(View view, AccountEntity account) {
+    public void deleteAccount(AccountEntity account) {
         FirebaseDatabase.getInstance()
                 .getReference("clients")
                 .child(account.getOwner())
@@ -109,7 +108,7 @@ public class AccountListViewModel extends AndroidViewModel {
         mObservableAccounts.getValue().remove(account);
     }
 
-    public void addAccount(View view, AccountEntity account) {
+    public void addAccount(AccountEntity account) {
         account.setId(UUID.randomUUID().toString());
         FirebaseDatabase.getInstance()
                 .getReference("clients")
@@ -130,7 +129,7 @@ public class AccountListViewModel extends AndroidViewModel {
         mObservableAccounts.getValue().add(account);
     }
 
-    public void updateAccount(View view, AccountEntity account) {
+    public void updateAccount(AccountEntity account) {
         FirebaseDatabase.getInstance()
                 .getReference("clients")
                 .child(account.getOwner())

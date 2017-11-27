@@ -110,9 +110,9 @@ public class EditAccountFragment extends Fragment {
     }
 
     private void initializeForm() {
-        mEtAccountName = (EditText) getActivity().findViewById(R.id.accountName);
+        mEtAccountName = getActivity().findViewById(R.id.accountName);
         mEtAccountName.requestFocus();
-        Button saveBtn = (Button) getActivity().findViewById(R.id.createAccountButton);
+        Button saveBtn = getActivity().findViewById(R.id.createAccountButton);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -130,13 +130,13 @@ public class EditAccountFragment extends Fragment {
     private void saveChanges(String accountName) {
         if (mEditMode) {
             mAccount.setName(accountName);
-            mViewModel.updateAccount(getView(), mAccount);
+            mViewModel.updateAccount(mAccount);
         } else {
             AccountEntity newAccount = new AccountEntity();
             newAccount.setOwner(mUser);
             newAccount.setBalance(0.0d);
             newAccount.setName(accountName);
-            mViewModel.addAccount(getView(), newAccount);
+            mViewModel.addAccount(newAccount);
         }
     }
 

@@ -73,8 +73,8 @@ public class ClientsFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_clients_list, container, false);
 
-        mRecyclerView = (RecyclerView) view.findViewById(R.id.clientsRecyclerView);
-        FloatingActionButton fab = (FloatingActionButton) view.findViewById(R.id.floatingActionButton);
+        mRecyclerView = view.findViewById(R.id.clientsRecyclerView);
+        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -133,14 +133,14 @@ public class ClientsFragment extends Fragment {
         alertDialog.setTitle(getString(R.string.fragment_title_delete_client));
         alertDialog.setCancelable(false);
 
-        final TextView deleteMessage = (TextView) view.findViewById(R.id.tv_delete_item);
+        final TextView deleteMessage = view.findViewById(R.id.tv_delete_item);
         deleteMessage.setText(String.format(getString(R.string.client_delete_msg), client.getId()));
 
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_accept), new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.client_deleted), Toast.LENGTH_LONG);
-                mViewModel.deleteClient(getView(), client);
+                mViewModel.deleteClient(client);
                 toast.show();
             }
         });

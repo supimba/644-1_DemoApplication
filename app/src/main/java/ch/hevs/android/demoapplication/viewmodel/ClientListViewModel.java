@@ -6,7 +6,6 @@ import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.MutableLiveData;
 import android.database.sqlite.SQLiteConstraintException;
 import android.support.annotation.NonNull;
-import android.view.View;
 
 import java.util.List;
 
@@ -60,14 +59,14 @@ public class ClientListViewModel extends AndroidViewModel {
         return mObservableClients;
     }
 
-    public void deleteClient(View view, ClientEntity client) {
+    public void deleteClient(ClientEntity client) {
         /* TODO: Change to Firebase
         new DeleteClient(view).execute(client);
         */
         mObservableClients.getValue().remove(client);
     }
 
-    public boolean addClient(View view, ClientEntity client) throws SQLiteConstraintException {
+    public boolean addClient(ClientEntity client) throws SQLiteConstraintException {
         boolean response;
         /* TODO: Change to Firebase
         try {
@@ -84,7 +83,7 @@ public class ClientListViewModel extends AndroidViewModel {
         return true;
     }
 
-    public void updateClient(View view, ClientEntity client) {
+    public void updateClient(ClientEntity client) {
         /* TODO: Change to Firebase
         new UpdateClient(view).execute(client);
         */

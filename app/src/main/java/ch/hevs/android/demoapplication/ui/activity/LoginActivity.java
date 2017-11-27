@@ -19,8 +19,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,13 +105,26 @@ public class LoginActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 // Sign in success, update UI with the signed-in user's information
                                 Log.d(TAG, "loginUserWithEmail: success");
-                                FirebaseUser user = mAuth.getCurrentUser();
 
                                 // We need an Editor object to make preference changes.
                                 // All objects are from android.context.Context
-                                SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
-                                // TODO: Check Admin rights of user in Firebase
-                                editor.putBoolean(MainActivity.PREFS_ADM, false);
+                                final SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
+                                FirebaseDatabase.getInstance()
+                                        .getReference("clients")
+                                        .child(mAuth.getCurrentUser().getUid())
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                                if (dataSnapshot.exists()) {
+                                                    editor.putBoolean(MainActivity.PREFS_ADM, dataSnapshot.getValue(ClientEntity.class).getAdmin());
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(DatabaseError databaseError) {
+                                                Log.d(TAG, "getAdminRights: onCancelled", databaseError.toException());
+                                            }
+                                        });
                                 editor.apply();
 
                                 Intent intent = new Intent(LoginActivity.this, MainActivity.class);

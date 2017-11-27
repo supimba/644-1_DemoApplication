@@ -108,13 +108,13 @@ public class EditClientFragment extends Fragment {
     }
 
     private void initializeForm() {
-        mEtFirstName = (EditText) getActivity().findViewById(R.id.firstName);
-        mEtLastName = (EditText) getActivity().findViewById(R.id.lastName);
-        mEtEmail = (EditText) getActivity().findViewById(R.id.email);
-        mEtPwd1 = (EditText) getActivity().findViewById(R.id.password);
-        mEtPwd2 = (EditText) getActivity().findViewById(R.id.passwordRep);
-        mAdminSwitch = (Switch) getActivity().findViewById(R.id.adminSwitch);
-        Button saveBtn = (Button) getActivity().findViewById(R.id.editButton);
+        mEtFirstName = getActivity().findViewById(R.id.firstName);
+        mEtLastName = getActivity().findViewById(R.id.lastName);
+        mEtEmail = getActivity().findViewById(R.id.email);
+        mEtPwd1 = getActivity().findViewById(R.id.password);
+        mEtPwd2 = getActivity().findViewById(R.id.passwordRep);
+        mAdminSwitch = getActivity().findViewById(R.id.adminSwitch);
+        Button saveBtn = getActivity().findViewById(R.id.editButton);
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -152,7 +152,7 @@ public class EditClientFragment extends Fragment {
             mClient.setLastName(lastName);
             mClient.setPassword(pwd);
             mClient.setAdmin(admin);
-            mViewModel.updateClient(getView(), mClient);
+            mViewModel.updateClient(mClient);
         } else {
             if (!pwd.equals(pwd2) || pwd.length() < 5) {
                 mEtPwd1.setError(getString(R.string.error_invalid_password));
@@ -173,7 +173,7 @@ public class EditClientFragment extends Fragment {
             newClient.setPassword(pwd);
             newClient.setAdmin(admin);
 
-            if (!mViewModel.addClient(getView(), newClient)) {
+            if (!mViewModel.addClient(newClient)) {
                 mEtEmail.setError(getString(R.string.error_invalid_email));
                 mEtEmail.requestFocus();
                 return false;

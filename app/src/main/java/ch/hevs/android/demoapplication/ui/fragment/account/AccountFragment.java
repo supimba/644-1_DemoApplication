@@ -134,7 +134,7 @@ public class AccountFragment extends Fragment {
         alertDialog.setCancelable(false);
 
 
-        final EditText accountMovement = (EditText) view.findViewById(R.id.account_movement);
+        final EditText accountMovement = view.findViewById(R.id.account_movement);
 
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_accept), new DialogInterface.OnClickListener() {
             @Override
@@ -148,14 +148,14 @@ public class AccountFragment extends Fragment {
                         toast.show();
                     } else {
                         mAccount.setBalance(mAccount.getBalance() - amount);
-                        mViewModel.updateAccount(getView(), mAccount);
+                        mViewModel.updateAccount(mAccount);
                         mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
                     }
                 }
                 if (action == R.string.action_deposit) {
                     Log.i(TAG, "Deposit: " + amount.toString());
                     mAccount.setBalance(mAccount.getBalance() + amount);
-                    mViewModel.updateAccount(getView(), mAccount);
+                    mViewModel.updateAccount(mAccount);
                     mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
                 }
             }

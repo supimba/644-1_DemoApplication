@@ -100,7 +100,7 @@ public class TransactionFragment extends Fragment {
                 }
             }
 
-            mSpinnerToClient = (Spinner) getView().findViewById(R.id.spinner_toClient);
+            mSpinnerToClient = getView().findViewById(R.id.spinner_toClient);
             mAdapterClient = new ListAdapter<>(getContext(), R.layout.row_client, mClients);
             mSpinnerToClient.setAdapter(mAdapterClient);
             mSpinnerToClient.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -113,7 +113,7 @@ public class TransactionFragment extends Fragment {
                 public void onNothingSelected(AdapterView<?> adapterView) { }
             });
 
-            mSpinnerFromAccount = (Spinner) getView().findViewById(R.id.spinner_from);
+            mSpinnerFromAccount = getView().findViewById(R.id.spinner_from);
             mAdapterFromAccount = new ListAdapter<>(getContext(), R.layout.row_client, mOwnAccounts);
             mSpinnerFromAccount.setAdapter(mAdapterFromAccount);
             mSpinnerFromAccount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -126,7 +126,7 @@ public class TransactionFragment extends Fragment {
                 public void onNothingSelected(AdapterView<?> adapterView) { }
             });
             final Toast toast = Toast.makeText(getContext(), getString(R.string.transaction_executed), Toast.LENGTH_LONG);
-            Button transactionBtn = (Button) getActivity().findViewById(R.id.btn_transaction);
+            Button transactionBtn = getActivity().findViewById(R.id.btn_transaction);
             transactionBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -145,7 +145,7 @@ public class TransactionFragment extends Fragment {
         try {
             mClientAccounts = new GetOwnAccounts(getView()).execute(recipient.getId()).get();
             */
-            mSpinnerAccount = (Spinner) getView().findViewById(R.id.spinner_toAcc);
+            mSpinnerAccount = getView().findViewById(R.id.spinner_toAcc);
             mAdapterAccount = new ListAdapter<>(getContext(), R.layout.row_client, mClientAccounts);
             mSpinnerAccount.setAdapter(mAdapterAccount);
             mSpinnerAccount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -164,7 +164,7 @@ public class TransactionFragment extends Fragment {
     }
 
     private void executeTransaction() {
-        EditText amountEditText = (EditText) getActivity().findViewById(R.id.transaction_amount);
+        EditText amountEditText = getActivity().findViewById(R.id.transaction_amount);
         Double amount = Double.parseDouble(amountEditText.getText().toString());
         if (amount < 0.0d) {
             amountEditText.setError(getString(R.string.error_transaction_negativ));
