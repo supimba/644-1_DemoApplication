@@ -74,16 +74,6 @@ public class ClientsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_clients_list, container, false);
 
         mRecyclerView = view.findViewById(R.id.clientsRecyclerView);
-        FloatingActionButton fab = view.findViewById(R.id.floatingActionButton);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.flContent, EditClientFragment.newInstance(null), "CreateClient")
-                        .addToBackStack("accounts")
-                        .commit();
-            }
-        });
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(view.getContext()));
 

@@ -143,7 +143,7 @@ public class AccountFragment extends Fragment {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.error_withdraw), Toast.LENGTH_LONG);
 
                 if (action == R.string.action_withdraw) {
-                    Log.i(TAG, "Withdrawal: " + amount.toString());
+                    Log.d(TAG, "Withdrawal: " + amount.toString());
                     if (mAccount.getBalance() < amount) {
                         toast.show();
                     } else {
@@ -153,7 +153,7 @@ public class AccountFragment extends Fragment {
                     }
                 }
                 if (action == R.string.action_deposit) {
-                    Log.i(TAG, "Deposit: " + amount.toString());
+                    Log.d(TAG, "Deposit: " + amount.toString());
                     mAccount.setBalance(mAccount.getBalance() + amount);
                     mViewModel.updateAccount(mAccount);
                     mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
@@ -199,6 +199,6 @@ public class AccountFragment extends Fragment {
                 generateDialog(R.string.action_withdraw);
             }
         });
-        Log.i(TAG, "Form populated.");
+        Log.d(TAG, "Form populated.");
     }
 }

@@ -21,6 +21,8 @@ public class ClientEntity implements Client {
     @ColumnInfo(name = "last_name")
     private String lastName;
 
+    private String email;
+
     private String password;
 
     @ColumnInfo(name = "admin")
@@ -31,6 +33,7 @@ public class ClientEntity implements Client {
 
     public ClientEntity(Client client) {
         id = client.getId();
+        email = client.getEmail();
         firstName = client.getFirstName();
         lastName = client.getLastName();
         password = client.getPassword();
@@ -45,6 +48,15 @@ public class ClientEntity implements Client {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    @Override
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     @Override

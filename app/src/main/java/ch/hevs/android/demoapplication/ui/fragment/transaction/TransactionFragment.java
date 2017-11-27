@@ -75,11 +75,11 @@ public class TransactionFragment extends Fragment {
         try {
             mLoggedIn = new GetClient(getView()).execute(mUser).get();
         } catch (InterruptedException | ExecutionException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Log.d(TAG, e.getMessage(), e);
         }*/
         if (mLoggedIn != null) {
             populateForm();
-            Log.i(TAG, "Form populated.");
+            Log.d(TAG, "Form populated.");
         } else {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
@@ -136,7 +136,7 @@ public class TransactionFragment extends Fragment {
             });
         /* TODO: Change to Firebase
         } catch (InterruptedException | ExecutionException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Log.d(TAG, e.getMessage(), e);
         }*/
     }
 
@@ -159,7 +159,7 @@ public class TransactionFragment extends Fragment {
             });
         /* TODO: Change to Firebase
         } catch (InterruptedException | ExecutionException e) {
-            Log.e(TAG, e.getMessage(), e);
+            Log.d(TAG, e.getMessage(), e);
         }*/
     }
 

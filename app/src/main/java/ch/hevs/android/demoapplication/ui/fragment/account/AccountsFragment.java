@@ -99,7 +99,6 @@ public class AccountsFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (mRecyclerView != null) {
-            String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
             observeViewModel(mViewModel);
             if (mAccounts == null) {
                 mAccounts = new ArrayList<>();
@@ -120,7 +119,6 @@ public class AccountsFragment extends Fragment {
                 public void onItemLongClick(View v, int position) {
                     Log.d(TAG, "longClicked position:" + position);
                     Log.d(TAG, "longClicked on: " + mAccounts.get(position).getName());
-
                     createDeleteDialog(position);
                 }
             }));

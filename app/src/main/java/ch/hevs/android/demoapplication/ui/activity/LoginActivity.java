@@ -64,25 +64,24 @@ public class LoginActivity extends AppCompatActivity {
 
         mPasswordView = findViewById(R.id.password);
 
-        Button mEmailSignInButton = findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+        Button emailSignInButton = findViewById(R.id.email_sign_in_button);
+        emailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
                 attemptLogin();
             }
         });
-    }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
-        FirebaseUser currentUser = mAuth.getCurrentUser();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
+        Button registerButton = findViewById(R.id.register_button);
+        registerButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
+                mEmailView.setText("");
+                mPasswordView.setText("");
+            }
+        });
     }
 
     /**
@@ -133,7 +132,7 @@ public class LoginActivity extends AppCompatActivity {
                                 mPasswordView.setText("");
                             } else {
                                 // If sign in fails, display a message to the user.
-                                Log.w(TAG, "loginUserWithEmail: failure", task.getException());
+                                Log.d(TAG, "loginUserWithEmail: failure", task.getException());
                                 mEmailView.setError(getString(R.string.error_invalid_email));
                                 mEmailView.requestFocus();
                                 mPasswordView.setText("");

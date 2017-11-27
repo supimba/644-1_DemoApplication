@@ -251,7 +251,7 @@ public class SettingsActivity extends AppCompatPreferenceActivity {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
             String lang = sharedPreferences.getString(MainActivity.PREFS_LNG, "en");
-            Log.i(TAG, "changed language to " + lang);
+            Log.d(TAG, "changed language to " + lang);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 updateLanguage(getContext(), lang);
             } else {

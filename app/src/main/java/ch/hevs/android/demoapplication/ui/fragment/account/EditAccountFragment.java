@@ -103,7 +103,7 @@ public class EditAccountFragment extends Fragment {
             try {
                 mAccount = new GetAccount(getView()).execute(mAccountId).get();
             } catch (InterruptedException | ExecutionException e) {
-                Log.e(TAG, e.getMessage(), e);
+                Log.d(TAG, e.getMessage(), e);
             }*/
             populateForm();
         }

@@ -29,7 +29,6 @@ public class EditClientFragment extends Fragment {
     private ClientListViewModel mViewModel;
     private ClientEntity mClient;
     private boolean mAdminMode;
-    private boolean mEditMode;
     private Toast mToast;
     private String mClientEmail;
 
@@ -73,15 +72,8 @@ public class EditClientFragment extends Fragment {
 
         if (getArguments() != null) {
             mClientEmail = getArguments().getString(ARG_PARAM1);
-            if (mClientEmail.equals("create")) {
-                ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_create_client));
-                mToast = Toast.makeText(getContext(), getString(R.string.client_created), Toast.LENGTH_LONG);
-                mEditMode = false;
-            } else {
-                ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_edit_client));
-                mToast = Toast.makeText(getContext(), getString(R.string.client_edited), Toast.LENGTH_LONG);
-                mEditMode = true;
-            }
+            ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_edit_client));
+            mToast = Toast.makeText(getContext(), getString(R.string.client_edited), Toast.LENGTH_LONG);
         }
     }
 
@@ -96,15 +88,13 @@ public class EditClientFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initializeForm();
-        if (mEditMode) {
             /* TODO: Change to Firebase
             try {
                 mClient = new GetClient(getView()).execute(mClientEmail).get();
             } catch (InterruptedException | ExecutionException e) {
-                Log.e(TAG, e.getMessage(), e);
+                Log.d(TAG, e.getMessage(), e);
             }*/
-            populateForm();
-        }
+        populateForm();
     }
 
     private void initializeForm() {
@@ -118,7 +108,7 @@ public class EditClientFragment extends Fragment {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (saveChanges(mEtFirstName.getText().toString(), mEtLastName.getText().toString(), mEtEmail.getText().toString(), mEtPwd1.getText().toString(), mEtPwd2.getText().toString(), mAdminSwitch.isChecked())){
+                if (saveChanges(mEtFirstName.getText().toString(), mEtLastName.getText().toString(), mEtEmail.getText().toString(), mEtPwd1.getText().toString(), mEtPwd2.getText().toString(), mAdminSwitch.isChecked())) {
                     getActivity().onBackPressed();
                     mToast.show();
                 }
@@ -140,45 +130,19 @@ public class EditClientFragment extends Fragment {
     }
 
     private boolean saveChanges(String firstName, String lastName, String email, String pwd, String pwd2, boolean admin) {
-        if (mEditMode) {
-            if (!pwd.equals(pwd2)) {
-                mEtPwd1.setError(getString(R.string.error_incorrect_password));
-                mEtPwd1.requestFocus();
-                mEtPwd1.setText("");
-                mEtPwd2.setText("");
-                return false;
-            }
-            mClient.setFirstName(firstName);
-            mClient.setLastName(lastName);
-            mClient.setPassword(pwd);
-            mClient.setAdmin(admin);
-            mViewModel.updateClient(mClient);
-        } else {
-            if (!pwd.equals(pwd2) || pwd.length() < 5) {
-                mEtPwd1.setError(getString(R.string.error_invalid_password));
-                mEtPwd1.requestFocus();
-                mEtPwd1.setText("");
-                mEtPwd2.setText("");
-                return false;
-            }
-            if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-                mEtEmail.setError(getString(R.string.error_invalid_email));
-                mEtEmail.requestFocus();
-                return false;
-            }
-            ClientEntity newClient = new ClientEntity();
-            newClient.setFirstName(firstName);
-            newClient.setLastName(lastName);
-            newClient.setId(email);
-            newClient.setPassword(pwd);
-            newClient.setAdmin(admin);
-
-            if (!mViewModel.addClient(newClient)) {
-                mEtEmail.setError(getString(R.string.error_invalid_email));
-                mEtEmail.requestFocus();
-                return false;
-            }
+        if (!pwd.equals(pwd2)) {
+            mEtPwd1.setError(getString(R.string.error_incorrect_password));
+            mEtPwd1.requestFocus();
+            mEtPwd1.setText("");
+            mEtPwd2.setText("");
+            return false;
         }
+        mClient.setFirstName(firstName);
+        mClient.setLastName(lastName);
+        mClient.setPassword(pwd);
+        mClient.setAdmin(admin);
+        mViewModel.updateClient(mClient);
+
         mToast.show();
         return true;
     }

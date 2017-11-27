@@ -67,4 +67,5 @@
     <string name="action_logout">Ausloggen</string>
     <string name="logout_msg">Möchten Sie sich wirklich ausloggen?</string>
     <string name="transaction_executed">Transaktion ausgeführt</string>
+    <string name="action_register">Registrieren</string>
 </resources>

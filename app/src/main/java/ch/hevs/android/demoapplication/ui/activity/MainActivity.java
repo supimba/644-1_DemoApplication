@@ -66,7 +66,7 @@ public class MainActivity extends AppCompatActivity
             try {
                 fragment = (Fragment) fragmentClass.newInstance();
             } catch (Exception e) {
-                Log.e(TAG, e.getMessage(), e);
+                Log.d(TAG, e.getMessage(), e);
             }
 
             FragmentManager fragmentManager = getSupportFragmentManager();
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity
                 fragment = (Fragment) fragmentClass.newInstance();
             }
         } catch (Exception e) {
-            Log.e(TAG, e.getMessage(), e);
+            Log.d(TAG, e.getMessage(), e);
         }
         fragmentManager.beginTransaction().replace(R.id.flContent, fragment).addToBackStack(BACK_STACK_ROOT_TAG).commit();
 
