@@ -179,7 +179,7 @@ public class AccountsFragment extends Fragment {
         List<AccountEntity> accounts = new ArrayList<>();
         for (DataSnapshot childSnapshot : snapshot.getChildren()) {
             AccountEntity entity = childSnapshot.getValue(AccountEntity.class);
-            entity.setId(childSnapshot.getKey());
+            entity.setUid(childSnapshot.getKey());
             entity.setOwner(user);
             accounts.add(entity);
         }

@@ -13,7 +13,7 @@ import ch.hevs.android.demoapplication.model.Client;
 public class ClientEntity implements Client {
 
     @NonNull
-    private String id;
+    private String uid;
 
     @ColumnInfo(name = "first_name")
     private String firstName;
@@ -32,7 +32,7 @@ public class ClientEntity implements Client {
     }
 
     public ClientEntity(Client client) {
-        id = client.getId();
+        uid = client.getUid();
         email = client.getEmail();
         firstName = client.getFirstName();
         lastName = client.getLastName();
@@ -42,12 +42,12 @@ public class ClientEntity implements Client {
 
     @Exclude
     @Override
-    public String getId() {
-        return id;
+    public String getUid() {
+        return uid;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class ClientEntity implements Client {
         if (obj == this) return true;
         if (!(obj instanceof ClientEntity)) return false;
         ClientEntity o = (ClientEntity) obj;
-        return o.getId().equals(this.getId());
+        return o.getUid().equals(this.getUid());
     }
 
     @Exclude

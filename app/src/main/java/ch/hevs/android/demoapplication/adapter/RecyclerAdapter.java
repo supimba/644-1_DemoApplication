@@ -88,12 +88,12 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
                 if (mData instanceof AccountEntity) {
-                    return ((AccountEntity)mData.get(oldItemPosition)).getId() ==
-                            ((AccountEntity)data.get(newItemPosition)).getId();
+                    return ((AccountEntity)mData.get(oldItemPosition)).getUid() ==
+                            ((AccountEntity)data.get(newItemPosition)).getUid();
                 }
                 if (mData instanceof ClientEntity) {
-                    return ((ClientEntity)mData.get(oldItemPosition)).getId().equals(
-                            ((ClientEntity)data.get(newItemPosition)).getId());
+                    return ((ClientEntity)mData.get(oldItemPosition)).getUid().equals(
+                            ((ClientEntity)data.get(newItemPosition)).getUid());
                 }
                 return false;
             }
@@ -103,7 +103,7 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
                 if (mData instanceof AccountEntity) {
                     AccountEntity newAccount = (AccountEntity) data.get(newItemPosition);
                     AccountEntity oldAccount = (AccountEntity) mData.get(newItemPosition);
-                    return newAccount.getId() == oldAccount.getId()
+                    return newAccount.getUid() == oldAccount.getUid()
                             && Objects.equals(newAccount.getName(), oldAccount.getName())
                             && Objects.equals(newAccount.getBalance(), oldAccount.getBalance())
                             //&& newAccount.getOwner() == oldAccount.getOwner()
@@ -112,7 +112,7 @@ public class RecyclerAdapter<T> extends RecyclerView.Adapter<RecyclerAdapter.Vie
                 if (mData instanceof ClientEntity) {
                     ClientEntity newClient = (ClientEntity) data.get(newItemPosition);
                     ClientEntity oldClient = (ClientEntity) mData.get(newItemPosition);
-                    return Objects.equals(newClient.getId(), oldClient.getId())
+                    return Objects.equals(newClient.getUid(), oldClient.getUid())
                             && Objects.equals(newClient.getFirstName(), oldClient.getFirstName())
                             && Objects.equals(newClient.getLastName(), oldClient.getLastName())
                             && newClient.getPassword() == oldClient.getPassword()

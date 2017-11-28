@@ -1,7 +1,7 @@
 package ch.hevs.android.demoapplication.model;
 
 public interface Account {
-    String getId();
+    String getUid();
     String getName();
     Double getBalance();
     String getOwner();

@@ -27,7 +27,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.adapter.RecyclerAdapter;
 import ch.hevs.android.demoapplication.adapter.client.ClientRecyclerAdapter;
 import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
@@ -64,10 +63,10 @@ public class ClientsFragment extends Fragment {
             @Override
             public void onItemClick(View v, int position) {
                 Log.d(TAG, "clicked position:" + position);
-                Log.d(TAG, "clicked on: " + mClients.get(position).getId());
+                Log.d(TAG, "clicked on: " + mClients.get(position).getUid());
 
                 getActivity().getSupportFragmentManager().beginTransaction()
-                        .replace(R.id.flContent, EditClientFragment.newInstance(mClients.get(position).getId()), "EditClient")
+                        .replace(R.id.flContent, EditClientFragment.newInstance(mClients.get(position).getUid()), "EditClient")
                         .addToBackStack("mClients")
                         .commit();
             }
@@ -75,7 +74,7 @@ public class ClientsFragment extends Fragment {
             @Override
             public void onItemLongClick(View v, int position) {
                 Log.d(TAG, "longClicked position:" + position);
-                Log.d(TAG, "longClicked on: " + mClients.get(position).getId());
+                Log.d(TAG, "longClicked on: " + mClients.get(position).getUid());
 
                 createDeleteDialog(position);
             }
@@ -122,7 +121,7 @@ public class ClientsFragment extends Fragment {
         alertDialog.setCancelable(false);
 
         final TextView deleteMessage = view.findViewById(R.id.tv_delete_item);
-        deleteMessage.setText(String.format(getString(R.string.client_delete_msg), client.getId()));
+        deleteMessage.setText(String.format(getString(R.string.client_delete_msg), client.getUid()));
 
         alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getString(R.string.action_accept), new DialogInterface.OnClickListener() {
             @Override
@@ -167,7 +166,7 @@ public class ClientsFragment extends Fragment {
         List<ClientEntity> clients = new ArrayList<>();
         for (DataSnapshot childSnapshot : snapshot.getChildren()) {
             ClientEntity entity = childSnapshot.getValue(ClientEntity.class);
-            entity.setId(childSnapshot.getKey());
+            entity.setUid(childSnapshot.getKey());
             clients.add(entity);
         }
         return clients;

@@ -54,7 +54,7 @@ public class EditAccountFragment extends Fragment {
         Bundle args = new Bundle();
 
         if (account != null) {
-            args.putString(ARG_PARAM1, account.getId());
+            args.putString(ARG_PARAM1, account.getUid());
         } else {
             args.putString(ARG_PARAM1, "");
         }
@@ -150,12 +150,12 @@ public class EditAccountFragment extends Fragment {
     }
 
     private void addAccount(final AccountEntity account) {
-        account.setId(UUID.randomUUID().toString());
+        account.setUid(UUID.randomUUID().toString());
         FirebaseDatabase.getInstance()
                 .getReference("clients")
                 .child(account.getOwner())
                 .child("accounts")
-                .child(account.getId())
+                .child(account.getUid())
                 .setValue(account, new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
@@ -175,7 +175,7 @@ public class EditAccountFragment extends Fragment {
                 .getReference("clients")
                 .child(account.getOwner())
                 .child("accounts")
-                .child(account.getId())
+                .child(account.getUid())
                 .updateChildren(account.toMap(), new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

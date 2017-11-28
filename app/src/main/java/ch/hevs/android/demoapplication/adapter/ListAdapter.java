@@ -43,6 +43,12 @@ public class ListAdapter<T> extends ArrayAdapter<T> {
         return mData.get(position);
     }
 
+    public void updateData(List<T> data) {
+        mData.clear();
+        mData.addAll(data);
+        notifyDataSetChanged();
+    }
+
     private View getCustomView(int position, View convertView, ViewGroup parent) {
         ListAdapter.ViewHolder viewHolder;
 

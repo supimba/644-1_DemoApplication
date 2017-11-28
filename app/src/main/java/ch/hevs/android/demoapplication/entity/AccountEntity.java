@@ -11,7 +11,7 @@ import ch.hevs.android.demoapplication.model.Account;
 
 public class AccountEntity implements Account {
     @NonNull
-    private String id;
+    private String uid;
     private String name;
     private Double balance;
     private String owner;
@@ -20,7 +20,7 @@ public class AccountEntity implements Account {
     }
 
     public AccountEntity(Account account) {
-        id = account.getId();
+        uid = account.getUid();
         name = account.getName();
         balance = account.getBalance();
         owner = account.getOwner();
@@ -28,12 +28,12 @@ public class AccountEntity implements Account {
 
     @Exclude
     @Override
-    public String getId() {
-        return id;
+    public String getUid() {
+        return uid;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     @Override
@@ -70,7 +70,7 @@ public class AccountEntity implements Account {
         if (obj == this) return true;
         if (!(obj instanceof AccountEntity)) return false;
         AccountEntity o = (AccountEntity) obj;
-        return o.getId().equals(this.getId());
+        return o.getUid().equals(this.getUid());
     }
 
     @Exclude

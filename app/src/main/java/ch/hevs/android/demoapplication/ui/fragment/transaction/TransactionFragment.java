@@ -1,7 +1,6 @@
 package ch.hevs.android.demoapplication.ui.fragment.transaction;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,7 +15,15 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.MutableData;
+import com.google.firebase.database.Transaction;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
@@ -30,8 +37,7 @@ public class TransactionFragment extends Fragment {
 
     private final String TAG = "TransactionFragment";
 
-    private String mUser;
-    private ClientEntity mLoggedIn;
+    private String mUserUid;
     private AccountEntity mFromAccount;
     private AccountEntity mToAccount;
 
@@ -47,15 +53,16 @@ public class TransactionFragment extends Fragment {
     private ListAdapter<ClientEntity> mAdapterClient;
     private ListAdapter<AccountEntity> mAdapterAccount;
 
-    public TransactionFragment() { }
+    public TransactionFragment() {
+    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_transaction));
 
-        mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        if (mUser == null) {
+        mUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        if (mUserUid == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
@@ -71,99 +78,135 @@ public class TransactionFragment extends Fragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        /* TODO: Change to Firebase
-        try {
-            mLoggedIn = new GetClient(getView()).execute(mUser).get();
-        } catch (InterruptedException | ExecutionException e) {
-            Log.d(TAG, e.getMessage(), e);
-        }*/
-        if (mLoggedIn != null) {
-            populateForm();
-            Log.d(TAG, "Form populated.");
-        } else {
+        if (mUserUid.isEmpty()) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
+        } else {
+            populateForm();
+            Log.d(TAG, "Form populated.");
         }
     }
 
     private void populateForm() {
-        /* TODO: Change to Firebase
-        try {
-            mOwnAccounts = new GetOwnAccounts(getView()).execute(mLoggedIn.getId()).get();
-            mClients = new GetClients(getView()).execute().get();
-            */
-            mClients.remove(mLoggedIn);
-            for (int i = 0; i < mClients.size(); i++) {
-                if (mClients.get(i).getId().equals(mLoggedIn.getId())) {
-                    mClients.remove(i);
-                    break;
-                }
+        mSpinnerToClient = getView().findViewById(R.id.spinner_toClient);
+        mAdapterClient = new ListAdapter<>(getContext(), R.layout.row_client, new ArrayList<ClientEntity>());
+        mSpinnerToClient.setAdapter(mAdapterClient);
+        mSpinnerToClient.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                populateToAccount((ClientEntity) parent.getItemAtPosition(position));
             }
 
-            mSpinnerToClient = getView().findViewById(R.id.spinner_toClient);
-            mAdapterClient = new ListAdapter<>(getContext(), R.layout.row_client, mClients);
-            mSpinnerToClient.setAdapter(mAdapterClient);
-            mSpinnerToClient.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    populateToAccount((ClientEntity) parent.getItemAtPosition(position));
-                }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
 
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) { }
-            });
+        mSpinnerFromAccount = getView().findViewById(R.id.spinner_from);
+        mAdapterFromAccount = new ListAdapter<>(getContext(), R.layout.row_client, new ArrayList<AccountEntity>());
+        mSpinnerFromAccount.setAdapter(mAdapterFromAccount);
+        mSpinnerFromAccount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mFromAccount = (AccountEntity) parent.getItemAtPosition(position);
+            }
 
-            mSpinnerFromAccount = getView().findViewById(R.id.spinner_from);
-            mAdapterFromAccount = new ListAdapter<>(getContext(), R.layout.row_client, mOwnAccounts);
-            mSpinnerFromAccount.setAdapter(mAdapterFromAccount);
-            mSpinnerFromAccount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    mFromAccount = (AccountEntity) parent.getItemAtPosition(position);
-                }
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
 
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) { }
-            });
-            final Toast toast = Toast.makeText(getContext(), getString(R.string.transaction_executed), Toast.LENGTH_LONG);
-            Button transactionBtn = getActivity().findViewById(R.id.btn_transaction);
-            transactionBtn.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    executeTransaction();
-                    toast.show();
-                }
-            });
-        /* TODO: Change to Firebase
-        } catch (InterruptedException | ExecutionException e) {
-            Log.d(TAG, e.getMessage(), e);
-        }*/
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(mUserUid)
+                .child("accounts")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            mOwnAccounts.clear();
+                            mOwnAccounts.addAll(toAccounts(dataSnapshot, mUserUid));
+                            mAdapterAccount.updateData(mOwnAccounts);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "getAll: onCancelled", databaseError.toException());
+                    }
+                });
+
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            for (int i = 0; i < mClients.size(); i++) {
+                                if (mClients.get(i).getUid().equals(mUserUid)) {
+                                    mClients.remove(i);
+                                    break;
+                                }
+                            }
+                            mClients.clear();
+                            mClients.addAll(toClients(dataSnapshot));
+                            mAdapterClient.updateData(mClients);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "getAll: onCancelled", databaseError.toException());
+                    }
+                });
+
+
+        final Toast toast = Toast.makeText(getContext(), getString(R.string.transaction_executed), Toast.LENGTH_LONG);
+        Button transactionBtn = getActivity().findViewById(R.id.btn_transaction);
+        transactionBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                executeTransaction(toast);
+            }
+        });
     }
 
-    private void populateToAccount(ClientEntity recipient) {
-        /* TODO: Change to Firebase
-        try {
-            mClientAccounts = new GetOwnAccounts(getView()).execute(recipient.getId()).get();
-            */
-            mSpinnerAccount = getView().findViewById(R.id.spinner_toAcc);
-            mAdapterAccount = new ListAdapter<>(getContext(), R.layout.row_client, mClientAccounts);
-            mSpinnerAccount.setAdapter(mAdapterAccount);
-            mSpinnerAccount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                @Override
-                public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                    mToAccount = (AccountEntity) parent.getItemAtPosition(position);
-                }
+    private void populateToAccount(final ClientEntity recipient) {
+        mSpinnerAccount = getView().findViewById(R.id.spinner_toAcc);
+        mAdapterAccount = new ListAdapter<>(getContext(), R.layout.row_client, new ArrayList<AccountEntity>());
+        mSpinnerAccount.setAdapter(mAdapterAccount);
+        mSpinnerAccount.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                mToAccount = (AccountEntity) parent.getItemAtPosition(position);
+            }
 
-                @Override
-                public void onNothingSelected(AdapterView<?> adapterView) { }
-            });
-        /* TODO: Change to Firebase
-        } catch (InterruptedException | ExecutionException e) {
-            Log.d(TAG, e.getMessage(), e);
-        }*/
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+            }
+        });
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(recipient.getUid())
+                .child("accounts")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            mClientAccounts.clear();
+                            mClientAccounts.addAll(toAccounts(dataSnapshot, recipient.getUid()));
+                            mAdapterAccount.updateData(mClientAccounts);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "getAll: onCancelled", databaseError.toException());
+                    }
+                });
     }
 
-    private void executeTransaction() {
+    private void executeTransaction(final Toast toast) {
         EditText amountEditText = getActivity().findViewById(R.id.transaction_amount);
         Double amount = Double.parseDouble(amountEditText.getText().toString());
         if (amount < 0.0d) {
@@ -177,8 +220,58 @@ public class TransactionFragment extends Fragment {
         }
         mFromAccount.setBalance(mFromAccount.getBalance() - amount);
         mToAccount.setBalance(mToAccount.getBalance() + amount);
-        /* TODO: Change to Firebase
-        new TransactionAccount(getView()).execute(Pair.create(mFromAccount, mToAccount));
-        */
+
+        final DatabaseReference rootReference = FirebaseDatabase.getInstance().getReference();
+        rootReference.runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData mutableData) {
+                rootReference
+                        .child("clients")
+                        .child(mFromAccount.getOwner())
+                        .child("accounts")
+                        .child(mFromAccount.getUid())
+                        .updateChildren(mFromAccount.toMap());
+
+                rootReference
+                        .child("clients")
+                        .child(mToAccount.getOwner())
+                        .child("accounts")
+                        .child(mToAccount.getUid())
+                        .updateChildren(mToAccount.toMap());
+                return null;
+            }
+
+            @Override
+            public void onComplete(DatabaseError databaseError, boolean b, DataSnapshot dataSnapshot) {
+                if (databaseError != null) {
+                    Log.d(TAG, "Transaction failure!", databaseError.toException());
+                    toast.setText("Transaction failed!");
+                } else {
+                    Log.d(TAG, "Transaction successful!");
+                }
+                toast.show();
+            }
+        });
+    }
+
+    private List<AccountEntity> toAccounts(DataSnapshot snapshot, String clientUid) {
+        List<AccountEntity> accounts = new ArrayList<>();
+        for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+            AccountEntity entity = childSnapshot.getValue(AccountEntity.class);
+            entity.setUid(childSnapshot.getKey());
+            entity.setOwner(clientUid);
+            accounts.add(entity);
+        }
+        return accounts;
+    }
+
+    private List<ClientEntity> toClients(DataSnapshot snapshot) {
+        List<ClientEntity> clients = new ArrayList<>();
+        for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+            ClientEntity entity = childSnapshot.getValue(ClientEntity.class);
+            entity.setUid(childSnapshot.getKey());
+            clients.add(entity);
+        }
+        return clients;
     }
 }

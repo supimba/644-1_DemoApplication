@@ -92,15 +92,15 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return (mAccounts.get(oldItemPosition).getId() ==
-                        data.get(newItemPosition).getId());
+                return (mAccounts.get(oldItemPosition).getUid() ==
+                        data.get(newItemPosition).getUid());
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                 AccountEntity newAccount = data.get(newItemPosition);
                 AccountEntity oldAccount = mAccounts.get(newItemPosition);
-                return newAccount.getId() == oldAccount.getId()
+                return newAccount.getUid() == oldAccount.getUid()
                         && Objects.equals(newAccount.getName(), oldAccount.getName())
                         && Objects.equals(newAccount.getBalance(), oldAccount.getBalance());
             }
@@ -120,7 +120,7 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android
                 .getReference("clients")
                 .child(account.getOwner())
                 .child("accounts")
-                .child(account.getId())
+                .child(account.getUid())
                 .removeValue(new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

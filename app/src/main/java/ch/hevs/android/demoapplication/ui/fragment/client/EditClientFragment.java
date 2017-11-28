@@ -19,8 +19,6 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.UUID;
-
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
@@ -158,7 +156,7 @@ public class EditClientFragment extends Fragment {
     private void updateClient(final ClientEntity client) {
         FirebaseDatabase.getInstance()
                 .getReference("clients")
-                .child(client.getId())
+                .child(client.getUid())
                 .updateChildren(client.toMap(), new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

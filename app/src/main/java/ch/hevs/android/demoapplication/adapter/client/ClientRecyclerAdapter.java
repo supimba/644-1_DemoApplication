@@ -92,15 +92,15 @@ public class ClientRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return (mClients.get(oldItemPosition)).getId().equals(
-                        (data.get(newItemPosition)).getId());
+                return (mClients.get(oldItemPosition)).getUid().equals(
+                        (data.get(newItemPosition)).getUid());
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                 ClientEntity newClient = data.get(newItemPosition);
                 ClientEntity oldClient = mClients.get(newItemPosition);
-                return Objects.equals(newClient.getId(), oldClient.getId())
+                return Objects.equals(newClient.getUid(), oldClient.getUid())
                         && Objects.equals(newClient.getFirstName(), oldClient.getFirstName())
                         && Objects.equals(newClient.getLastName(), oldClient.getLastName())
                         && newClient.getPassword() == oldClient.getPassword()
@@ -120,7 +120,7 @@ public class ClientRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.
     public void deleteClient(final ClientEntity client) {
         FirebaseDatabase.getInstance()
                 .getReference("clients")
-                .child(client.getId())
+                .child(client.getUid())
                 .removeValue(new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {

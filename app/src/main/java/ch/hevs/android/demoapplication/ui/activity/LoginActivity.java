@@ -18,7 +18,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -197,7 +196,7 @@ public class LoginActivity extends AppCompatActivity {
         client1.setFirstName("Michel");
         client1.setLastName("Platini");
         client1.setEmail("m.p@fifa.com");
-        client1.setId("afxWlnpnwcQz52vNfwOK0gESJum1");
+        client1.setUid("afxWlnpnwcQz52vNfwOK0gESJum1");
         client1.setPassword("platini1");
         client1.setAdmin(false);
         clients.add(client1);
@@ -205,7 +204,7 @@ public class LoginActivity extends AppCompatActivity {
         client2.setFirstName("Sepp");
         client2.setLastName("Blatter");
         client2.setEmail("s.b@fifa.com");
-        client2.setId("T5Ut1jePpkM7tLADc26OlfqAj9J3");
+        client2.setUid("T5Ut1jePpkM7tLADc26OlfqAj9J3");
         client2.setPassword("blatter1");
         client2.setAdmin(true);
         clients.add(client2);
@@ -213,7 +212,7 @@ public class LoginActivity extends AppCompatActivity {
         client3.setFirstName("Ebbe");
         client3.setLastName("Schwartz");
         client3.setEmail("e.s@fifa.com");
-        client3.setId("CZKUC27B2DRL5UVanNt7kturoJi2");
+        client3.setUid("CZKUC27B2DRL5UVanNt7kturoJi2");
         client3.setPassword("schwartz1");
         client3.setAdmin(false);
         clients.add(client3);
@@ -221,7 +220,7 @@ public class LoginActivity extends AppCompatActivity {
         client4.setFirstName("Aleksander");
         client4.setLastName("Ceferin");
         client4.setEmail("a.c@fifa.com");
-        client4.setId("l9AAskVtKEP2YxrOgO8OBiSzlKi2");
+        client4.setUid("l9AAskVtKEP2YxrOgO8OBiSzlKi2");
         client4.setPassword("ceferin1");
         client4.setAdmin(false);
         clients.add(client4);
@@ -236,60 +235,60 @@ public class LoginActivity extends AppCompatActivity {
         AccountEntity account8 = new AccountEntity();
 
 
-        account1.setId(UUID.randomUUID().toString());
+        account1.setUid(UUID.randomUUID().toString());
         account1.setBalance(20000d);
         account1.setName("Savings");
-        account1.setOwner(clients.get(0).getId());
+        account1.setOwner(clients.get(0).getUid());
         accounts.add(account1 );
 
-        account2.setId(UUID.randomUUID().toString());
+        account2.setUid(UUID.randomUUID().toString());
         account2.setBalance(1840000d);
         account2.setName("Secret");
-        account2.setOwner(clients.get(0).getId());
+        account2.setOwner(clients.get(0).getUid());
         accounts.add(account2);
 
-        account3.setId(UUID.randomUUID().toString());
+        account3.setUid(UUID.randomUUID().toString());
         account3.setBalance(21000d);
         account3.setName("Savings");
-        account3.setOwner(clients.get(1).getId());
+        account3.setOwner(clients.get(1).getUid());
         accounts.add(account3);
 
-        account4.setId(UUID.randomUUID().toString());
+        account4.setUid(UUID.randomUUID().toString());
         account4.setBalance(1820000d);
         account4.setName("Secret");
-        account4.setOwner(clients.get(1).getId());
+        account4.setOwner(clients.get(1).getUid());
         accounts.add(account4);
 
-        account5.setId(UUID.randomUUID().toString());
+        account5.setUid(UUID.randomUUID().toString());
         account5.setBalance(18500d);
         account5.setName("Savings");
-        account5.setOwner(clients.get(2).getId());
+        account5.setOwner(clients.get(2).getUid());
         accounts.add(account5);
 
-        account6.setId(UUID.randomUUID().toString());
+        account6.setUid(UUID.randomUUID().toString());
         account6.setBalance(1810000d);
         account6.setName("Secret");
-        account6.setOwner(clients.get(2).getId());
+        account6.setOwner(clients.get(2).getUid());
         accounts.add(account6);
 
-        account7.setId(UUID.randomUUID().toString());
+        account7.setUid(UUID.randomUUID().toString());
         account7.setBalance(19000d);
         account7.setName("Savings");
-        account7.setOwner(clients.get(3).getId());
+        account7.setOwner(clients.get(3).getUid());
         accounts.add(account7);
 
-        account8.setId(UUID.randomUUID().toString());
+        account8.setUid(UUID.randomUUID().toString());
         account8.setBalance(1902360d);
         account8.setName("Secret");
-        account8.setOwner(clients.get(3).getId());
+        account8.setOwner(clients.get(3).getUid());
         accounts.add(account8);
 
         for (ClientEntity client : clients) {
-            mDatabase.child("clients").child(client.getId()).setValue(client);
+            mDatabase.child("clients").child(client.getUid()).setValue(client);
         }
 
         for (AccountEntity account : accounts) {
-            mDatabase.child("clients").child(account.getOwner()).child("accounts").child(account.getId()).setValue(account);
+            mDatabase.child("clients").child(account.getOwner()).child("accounts").child(account.getUid()).setValue(account);
         }
     }
 }

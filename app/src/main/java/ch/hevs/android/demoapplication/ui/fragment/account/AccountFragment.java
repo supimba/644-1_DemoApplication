@@ -16,7 +16,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,7 +53,7 @@ public class AccountFragment extends Fragment {
     public static AccountFragment newInstance(AccountEntity account) {
         AccountFragment fragment = new AccountFragment();
         Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, account.getId());
+        args.putString(ARG_PARAM1, account.getUid());
         fragment.setArguments(args);
         return fragment;
     }
@@ -98,7 +97,7 @@ public class AccountFragment extends Fragment {
                         public void onDataChange(DataSnapshot dataSnapshot) {
                             if (dataSnapshot.exists()){
                                 mAccount = dataSnapshot.getValue(AccountEntity.class);
-                                mAccount.setId(mAccountId);
+                                mAccount.setUid(mAccountId);
                                 mAccount.setOwner(mUser);
                                 initiateView();
                             } else {
@@ -187,7 +186,7 @@ public class AccountFragment extends Fragment {
                 .getReference("clients")
                 .child(account.getOwner())
                 .child("accounts")
-                .child(account.getId())
+                .child(account.getUid())
                 .updateChildren(account.toMap(), new DatabaseReference.CompletionListener() {
                     @Override
                     public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
