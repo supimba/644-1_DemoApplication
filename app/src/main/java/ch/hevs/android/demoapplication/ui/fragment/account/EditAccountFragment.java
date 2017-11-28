@@ -1,12 +1,11 @@
 package ch.hevs.android.demoapplication.ui.fragment.account;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,21 +14,22 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
-import java.util.List;
+import java.util.UUID;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
-import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 public class EditAccountFragment extends Fragment {
 
     private final String TAG = "EditAccountFragment";
     private static final String ARG_PARAM1 = "accountId";
 
-    private AccountListViewModel mViewModel;
     private AccountEntity mAccount;
     private String mAccountId;
     private String mUser;
@@ -65,8 +65,6 @@ public class EditAccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        mViewModel = ViewModelProviders.of(this).get(AccountListViewModel.class);
-        observeViewModel(mViewModel);
 
         if (mUser == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
@@ -117,8 +115,6 @@ public class EditAccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 saveChanges(mEtAccountName.getText().toString());
-                getActivity().onBackPressed();
-                mToast.show();
             }
         });
     }
@@ -130,20 +126,54 @@ public class EditAccountFragment extends Fragment {
     private void saveChanges(String accountName) {
         if (mEditMode) {
             mAccount.setName(accountName);
-            mViewModel.updateAccount(mAccount);
+            updateAccount(mAccount);
         } else {
             AccountEntity newAccount = new AccountEntity();
             newAccount.setOwner(mUser);
             newAccount.setBalance(0.0d);
             newAccount.setName(accountName);
-            mViewModel.addAccount(newAccount);
+            addAccount(newAccount);
         }
     }
 
-    private void observeViewModel(AccountListViewModel viewModel) {
-        viewModel.getAccounts().observe(this, new Observer<List<AccountEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<AccountEntity> accountEntities) {}
-        });
+    private void addAccount(final AccountEntity account) {
+        account.setId(UUID.randomUUID().toString());
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(account.getOwner())
+                .child("accounts")
+                .child(account.getId())
+                .setValue(account, new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d(TAG, "Insert failure!", databaseError.toException());
+                        } else {
+                            Log.d(TAG, "Insert successful!");
+                            getActivity().onBackPressed();
+                            mToast.show();
+                        }
+                    }
+                });
+    }
+
+    private void updateAccount(final AccountEntity account) {
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(account.getOwner())
+                .child("accounts")
+                .child(account.getId())
+                .updateChildren(account.toMap(), new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d(TAG, "Update failure!", databaseError.toException());
+                        } else {
+                            Log.d(TAG, "Update successful!");
+                            getActivity().onBackPressed();
+                            mToast.show();
+                        }
+                    }
+                });
     }
 }

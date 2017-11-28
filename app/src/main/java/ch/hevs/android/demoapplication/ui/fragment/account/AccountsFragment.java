@@ -1,7 +1,5 @@
 package ch.hevs.android.demoapplication.ui.fragment.account;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -21,17 +19,20 @@ import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.adapter.RecyclerAdapter;
+import ch.hevs.android.demoapplication.adapter.account.AccountRecyclerAdapter;
 import ch.hevs.android.demoapplication.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
-import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 /**
  * A fragment representing a list of Items.
@@ -42,7 +43,7 @@ public class AccountsFragment extends Fragment {
 
     private List<AccountEntity> mAccounts;
     private RecyclerView mRecyclerView;
-    private AccountListViewModel mViewModel;
+    private AccountRecyclerAdapter mAdapter;
 
     public AccountsFragment() {
     }
@@ -56,11 +57,28 @@ public class AccountsFragment extends Fragment {
         if (firebaseUser == null) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
-        } else {
-            AccountListViewModel.Factory factory = new AccountListViewModel.Factory(
-                    getActivity().getApplication(), firebaseUser.getUid());
-            mViewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);
         }
+
+        mAccounts = new ArrayList<>();
+        mAdapter = new AccountRecyclerAdapter(new RecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Log.d(TAG, "clicked position:" + position);
+                Log.d(TAG, "clicked on: " + mAccounts.get(position).getName());
+
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flContent, AccountFragment.newInstance(mAccounts.get(position)), "AccountDetails")
+                        .addToBackStack("mAccounts")
+                        .commit();
+            }
+
+            @Override
+            public void onItemLongClick(View v, int position) {
+                Log.d(TAG, "longClicked position:" + position);
+                Log.d(TAG, "longClicked on: " + mAccounts.get(position).getName());
+                createDeleteDialog(position);
+            }
+        });
     }
 
     @Override
@@ -99,29 +117,8 @@ public class AccountsFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (mRecyclerView != null) {
-            observeViewModel(mViewModel);
-            if (mAccounts == null) {
-                mAccounts = new ArrayList<>();
-            }
-            mRecyclerView.setAdapter(new RecyclerAdapter<>(mAccounts, new RecyclerViewItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Log.d(TAG, "clicked position:" + position);
-                    Log.d(TAG, "clicked on: " + mAccounts.get(position).getName());
-
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flContent, AccountFragment.newInstance(mAccounts.get(position)), "AccountDetails")
-                            .addToBackStack("mAccounts")
-                            .commit();
-                }
-
-                @Override
-                public void onItemLongClick(View v, int position) {
-                    Log.d(TAG, "longClicked position:" + position);
-                    Log.d(TAG, "longClicked on: " + mAccounts.get(position).getName());
-                    createDeleteDialog(position);
-                }
-            }));
+            mRecyclerView.setAdapter(mAdapter);
+            updateAccounts();
         }
     }
 
@@ -140,7 +137,7 @@ public class AccountsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.account_deleted), Toast.LENGTH_LONG);
-                mViewModel.deleteAccount(account);
+                mAdapter.deleteAccount(account);
                 toast.show();
             }
         });
@@ -155,16 +152,37 @@ public class AccountsFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void observeViewModel(AccountListViewModel viewModel) {
-        viewModel.getAccounts().observe(this, new Observer<List<AccountEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<AccountEntity> accountEntities) {
-                if (accountEntities != null) {
-                    mAccounts = accountEntities;
-                    ((RecyclerAdapter) mRecyclerView.getAdapter()).setData(mAccounts);
-                    mRecyclerView.getAdapter().notifyDataSetChanged();
-                }
-            }
-        });
+    private void updateAccounts() {
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                .child("accounts")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            mAccounts.clear();
+                            mAccounts.addAll(toAccounts(dataSnapshot));
+                            mAdapter.updateData(mAccounts);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "getAll: onCancelled", databaseError.toException());
+                    }
+                });
+    }
+
+    private List<AccountEntity> toAccounts(DataSnapshot snapshot) {
+        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        List<AccountEntity> accounts = new ArrayList<>();
+        for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+            AccountEntity entity = childSnapshot.getValue(AccountEntity.class);
+            entity.setId(childSnapshot.getKey());
+            entity.setOwner(user);
+            accounts.add(entity);
+        }
+        return accounts;
     }
 }

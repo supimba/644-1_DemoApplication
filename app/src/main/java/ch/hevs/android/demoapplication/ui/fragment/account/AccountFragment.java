@@ -1,10 +1,7 @@
 package ch.hevs.android.demoapplication.ui.fragment.account;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,24 +19,22 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.text.NumberFormat;
-import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.entity.AccountEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
-import ch.hevs.android.demoapplication.viewmodel.AccountListViewModel;
 
 public class AccountFragment extends Fragment {
 
     private final String TAG = "AccountFragment";
     private static final String ARG_PARAM1 = "accountId";
 
-    private AccountListViewModel mViewModel;
     private AccountEntity mAccount;
     private String mUser;
     private String mAccountId;
@@ -81,9 +76,6 @@ public class AccountFragment extends Fragment {
         if (getArguments() != null) {
             mAccountId = getArguments().getString(ARG_PARAM1);
         }
-        AccountListViewModel.Factory factory = new AccountListViewModel.Factory(
-                getActivity().getApplication(), FirebaseAuth.getInstance().getCurrentUser().getUid());
-        mViewModel = ViewModelProviders.of(this, factory).get(AccountListViewModel.class);        observeViewModel(mViewModel);
     }
 
     @Override
@@ -148,15 +140,13 @@ public class AccountFragment extends Fragment {
                         toast.show();
                     } else {
                         mAccount.setBalance(mAccount.getBalance() - amount);
-                        mViewModel.updateAccount(mAccount);
-                        mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
+                        updateAccount(mAccount);
                     }
                 }
                 if (action == R.string.action_deposit) {
                     Log.d(TAG, "Deposit: " + amount.toString());
                     mAccount.setBalance(mAccount.getBalance() + amount);
-                    mViewModel.updateAccount(mAccount);
-                    mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
+                    updateAccount(mAccount);
                 }
             }
         });
@@ -169,13 +159,6 @@ public class AccountFragment extends Fragment {
         });
         alertDialog.setView(view);
         alertDialog.show();
-    }
-
-    private void observeViewModel(AccountListViewModel viewModel) {
-        viewModel.getAccounts().observe(this, new Observer<List<AccountEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<AccountEntity> accountEntities) {}
-        });
     }
 
     private void initiateView() {
@@ -200,5 +183,24 @@ public class AccountFragment extends Fragment {
             }
         });
         Log.d(TAG, "Form populated.");
+    }
+
+    private void updateAccount(final AccountEntity account) {
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(account.getOwner())
+                .child("accounts")
+                .child(account.getId())
+                .updateChildren(account.toMap(), new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d(TAG, "Update failure!", databaseError.toException());
+                        } else {
+                            Log.d(TAG, "Update successful!");
+                            mTvBalance.setText(mDefaultFormat.format(mAccount.getBalance()));
+                        }
+                    }
+                });
     }
 }

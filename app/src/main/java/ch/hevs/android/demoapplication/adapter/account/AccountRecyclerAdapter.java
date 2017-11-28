@@ -2,11 +2,17 @@ package ch.hevs.android.demoapplication.adapter.account;
 
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +22,9 @@ import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
 
 public class AccountRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.demoapplication.adapter.account.AccountRecyclerAdapter.ViewHolder> {
 
-    private List<AccountEntity> mData;
+    public static final String TAG = "AccountRecyclerAdapter";
+
+    private List<AccountEntity> mAccounts;
     private RecyclerViewItemClickListener mListener;
 
     // Provide a reference to the views for each data item
@@ -32,8 +40,8 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android
         }
     }
 
-    public AccountRecyclerAdapter(List<AccountEntity> data, RecyclerViewItemClickListener listener) {
-        mData = data;
+    public AccountRecyclerAdapter(RecyclerViewItemClickListener listener) {
+        mAccounts = new ArrayList<>();
         mListener = listener;
     }
 
@@ -61,20 +69,20 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android
 
     @Override
     public void onBindViewHolder(ch.hevs.android.demoapplication.adapter.account.AccountRecyclerAdapter.ViewHolder holder, int position) {
-        AccountEntity item = mData.get(position);
+        AccountEntity item = mAccounts.get(position);
         holder.mTextView.setText(item.getName());
     }
 
     @Override
     public int getItemCount() {
-        return mData.size();
+        return mAccounts.size();
     }
 
     public void setData(final List<AccountEntity> data) {
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Override
             public int getOldListSize() {
-                return mData.size();
+                return mAccounts.size();
             }
 
             @Override
@@ -84,22 +92,46 @@ public class AccountRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return (mData.get(oldItemPosition).getId() ==
+                return (mAccounts.get(oldItemPosition).getId() ==
                         data.get(newItemPosition).getId());
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                 AccountEntity newAccount = data.get(newItemPosition);
-                AccountEntity oldAccount = mData.get(newItemPosition);
+                AccountEntity oldAccount = mAccounts.get(newItemPosition);
                 return newAccount.getId() == oldAccount.getId()
                         && Objects.equals(newAccount.getName(), oldAccount.getName())
-                        && Objects.equals(newAccount.getBalance(), oldAccount.getBalance())
-                        //&& newAccount.getOwner() == oldAccount.getOwner()
-                        ;
+                        && Objects.equals(newAccount.getBalance(), oldAccount.getBalance());
             }
         });
-        mData = data;
+        mAccounts = data;
         result.dispatchUpdatesTo(this);
+    }
+
+    public void updateData(List<AccountEntity> accounts) {
+        mAccounts.clear();
+        mAccounts.addAll(accounts);
+        notifyDataSetChanged();
+    }
+
+    public void deleteAccount(final AccountEntity account) {
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(account.getOwner())
+                .child("accounts")
+                .child(account.getId())
+                .removeValue(new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d(TAG, "Delete failure!", databaseError.toException());
+                        } else {
+                            Log.d(TAG, "Delete successful!");
+                            mAccounts.remove(account);
+                            notifyDataSetChanged();
+                        }
+                    }
+                });
     }
 }
