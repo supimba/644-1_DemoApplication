@@ -19,6 +19,7 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.Logger;
 import com.google.firebase.database.MutableData;
 import com.google.firebase.database.Transaction;
 import com.google.firebase.database.ValueEventListener;
@@ -88,6 +89,9 @@ public class TransactionFragment extends Fragment {
     }
 
     private void populateForm() {
+        mClients = new ArrayList<>();
+        mOwnAccounts = new ArrayList<>();
+
         mSpinnerToClient = getView().findViewById(R.id.spinner_toClient);
         mAdapterClient = new ListAdapter<>(getContext(), R.layout.row_client, new ArrayList<ClientEntity>());
         mSpinnerToClient.setAdapter(mAdapterClient);
@@ -126,7 +130,7 @@ public class TransactionFragment extends Fragment {
                         if (dataSnapshot.exists()) {
                             mOwnAccounts.clear();
                             mOwnAccounts.addAll(toAccounts(dataSnapshot, mUserUid));
-                            mAdapterAccount.updateData(mOwnAccounts);
+                            mAdapterFromAccount.updateData(mOwnAccounts);
                         }
                     }
 
@@ -142,14 +146,14 @@ public class TransactionFragment extends Fragment {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
+                            mClients.clear();
+                            mClients.addAll(toClients(dataSnapshot));
                             for (int i = 0; i < mClients.size(); i++) {
                                 if (mClients.get(i).getUid().equals(mUserUid)) {
                                     mClients.remove(i);
                                     break;
                                 }
                             }
-                            mClients.clear();
-                            mClients.addAll(toClients(dataSnapshot));
                             mAdapterClient.updateData(mClients);
                         }
                     }
@@ -172,6 +176,8 @@ public class TransactionFragment extends Fragment {
     }
 
     private void populateToAccount(final ClientEntity recipient) {
+        mClientAccounts = new ArrayList<>();
+
         mSpinnerAccount = getView().findViewById(R.id.spinner_toAcc);
         mAdapterAccount = new ListAdapter<>(getContext(), R.layout.row_client, new ArrayList<AccountEntity>());
         mSpinnerAccount.setAdapter(mAdapterAccount);
@@ -238,7 +244,8 @@ public class TransactionFragment extends Fragment {
                         .child("accounts")
                         .child(mToAccount.getUid())
                         .updateChildren(mToAccount.toMap());
-                return null;
+
+                return Transaction.success(mutableData);
             }
 
             @Override
@@ -249,9 +256,9 @@ public class TransactionFragment extends Fragment {
                 } else {
                     Log.d(TAG, "Transaction successful!");
                 }
-                toast.show();
             }
         });
+        toast.show();
     }
 
     private List<AccountEntity> toAccounts(DataSnapshot snapshot, String clientUid) {
