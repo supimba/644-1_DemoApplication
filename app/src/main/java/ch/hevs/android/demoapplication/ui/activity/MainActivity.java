@@ -22,15 +22,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 
 import java.util.Locale;
 
 import ch.hevs.android.demoapplication.R;
-import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.fragment.MainFragment;
 import ch.hevs.android.demoapplication.ui.fragment.account.AccountsFragment;
 import ch.hevs.android.demoapplication.ui.fragment.client.ClientsFragment;
@@ -48,7 +43,7 @@ public class MainActivity extends AppCompatActivity
     public static final String PREFS_LNG = "Language";
 
     private Boolean mAdmin;
-    private ClientEntity mLoggedIn;
+    private String mLoggedIn;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,6 +54,7 @@ public class MainActivity extends AppCompatActivity
 
         SharedPreferences settings = getSharedPreferences(MainActivity.PREFS_NAME, 0);
         mAdmin = settings.getBoolean(PREFS_ADM, false);
+        mLoggedIn = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (savedInstanceState == null) {
             Fragment fragment = null;
@@ -68,11 +64,9 @@ public class MainActivity extends AppCompatActivity
             } catch (Exception e) {
                 Log.d(TAG, e.getMessage(), e);
             }
-
             FragmentManager fragmentManager = getSupportFragmentManager();
             fragmentManager.beginTransaction().replace(R.id.flContent, fragment, BACK_STACK_ROOT_TAG).commit();
         }
-
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -107,7 +101,6 @@ public class MainActivity extends AppCompatActivity
             Intent intent = new Intent(this, SettingsActivity.class);
             startActivity(intent);
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -172,22 +165,6 @@ public class MainActivity extends AppCompatActivity
         if (mAdmin) {
             client.setVisible(false);
         } else {
-            FirebaseDatabase.getInstance()
-                    .getReference("clients")
-                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(DataSnapshot dataSnapshot) {
-                            if (dataSnapshot.exists()) {
-                                mLoggedIn = dataSnapshot.getValue(ClientEntity.class);
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(DatabaseError databaseError) {
-                            Log.d(TAG, "getAdminRights: onCancelled", databaseError.toException());
-                        }
-                    });
             clients.setVisible(false);
         }
     }

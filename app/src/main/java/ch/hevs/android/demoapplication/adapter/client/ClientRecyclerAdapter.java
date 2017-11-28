@@ -2,11 +2,17 @@ package ch.hevs.android.demoapplication.adapter.client;
 
 import android.support.v7.util.DiffUtil;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -16,7 +22,9 @@ import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
 
 public class ClientRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.demoapplication.adapter.client.ClientRecyclerAdapter.ViewHolder> {
 
-    private List<ClientEntity> mData;
+    private static final String TAG = "ClientRecyclerAdapter";
+
+    private List<ClientEntity> mClients;
     private RecyclerViewItemClickListener mListener;
 
     // Provide a reference to the views for each data item
@@ -32,8 +40,8 @@ public class ClientRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.
         }
     }
 
-    public ClientRecyclerAdapter(List<ClientEntity> data, RecyclerViewItemClickListener listener) {
-        mData = data;
+    public ClientRecyclerAdapter(RecyclerViewItemClickListener listener) {
+        mClients = new ArrayList<>();
         mListener = listener;
     }
 
@@ -61,20 +69,20 @@ public class ClientRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.
 
     @Override
     public void onBindViewHolder(ch.hevs.android.demoapplication.adapter.client.ClientRecyclerAdapter.ViewHolder holder, int position) {
-        ClientEntity item = mData.get(position);
+        ClientEntity item = mClients.get(position);
         holder.mTextView.setText(item.getFirstName() + " " + item.getLastName());
     }
 
     @Override
     public int getItemCount() {
-        return mData.size();
+        return mClients.size();
     }
 
     public void setData(final List<ClientEntity> data) {
         DiffUtil.DiffResult result = DiffUtil.calculateDiff(new DiffUtil.Callback() {
             @Override
             public int getOldListSize() {
-                return mData.size();
+                return mClients.size();
             }
 
             @Override
@@ -84,14 +92,14 @@ public class ClientRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.
 
             @Override
             public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
-                return (mData.get(oldItemPosition)).getId().equals(
+                return (mClients.get(oldItemPosition)).getId().equals(
                         (data.get(newItemPosition)).getId());
             }
 
             @Override
             public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
                 ClientEntity newClient = data.get(newItemPosition);
-                ClientEntity oldClient = mData.get(newItemPosition);
+                ClientEntity oldClient = mClients.get(newItemPosition);
                 return Objects.equals(newClient.getId(), oldClient.getId())
                         && Objects.equals(newClient.getFirstName(), oldClient.getFirstName())
                         && Objects.equals(newClient.getLastName(), oldClient.getLastName())
@@ -99,7 +107,31 @@ public class ClientRecyclerAdapter extends RecyclerView.Adapter<ch.hevs.android.
                         && newClient.getAdmin() == oldClient.getAdmin();
             }
         });
-        mData = data;
+        mClients = data;
         result.dispatchUpdatesTo(this);
+    }
+
+    public void updateData(List<ClientEntity> clients) {
+        mClients.clear();
+        mClients.addAll(clients);
+        notifyDataSetChanged();
+    }
+
+    public void deleteClient(final ClientEntity client) {
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(client.getId())
+                .removeValue(new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d(TAG, "Delete failure!", databaseError.toException());
+                        } else {
+                            Log.d(TAG, "Delete successful!");
+                            mClients.remove(client);
+                            notifyDataSetChanged();
+                        }
+                    }
+                });
     }
 }

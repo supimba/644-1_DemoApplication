@@ -1,13 +1,10 @@
 package ch.hevs.android.demoapplication.ui.fragment.client;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
@@ -21,17 +18,21 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.adapter.RecyclerAdapter;
+import ch.hevs.android.demoapplication.adapter.client.ClientRecyclerAdapter;
 import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.LoginActivity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
 import ch.hevs.android.demoapplication.util.RecyclerViewItemClickListener;
-import ch.hevs.android.demoapplication.viewmodel.ClientListViewModel;
 
 public class ClientsFragment extends Fragment {
 
@@ -39,7 +40,7 @@ public class ClientsFragment extends Fragment {
 
     private List<ClientEntity> mClients;
     private RecyclerView mRecyclerView;
-    private ClientListViewModel mViewModel;
+    private ClientRecyclerAdapter mAdapter;
 
     public ClientsFragment() {
     }
@@ -50,8 +51,7 @@ public class ClientsFragment extends Fragment {
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.clients_fragment_title));
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         Boolean admin = settings.getBoolean(MainActivity.PREFS_ADM, false);
-        String user = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        if (user == null) {
+        if (FirebaseAuth.getInstance().getCurrentUser().getUid().isEmpty()) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
@@ -59,7 +59,27 @@ public class ClientsFragment extends Fragment {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
-        mViewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
+        mClients = new ArrayList<>();
+        mAdapter = new ClientRecyclerAdapter(new RecyclerViewItemClickListener() {
+            @Override
+            public void onItemClick(View v, int position) {
+                Log.d(TAG, "clicked position:" + position);
+                Log.d(TAG, "clicked on: " + mClients.get(position).getId());
+
+                getActivity().getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.flContent, EditClientFragment.newInstance(mClients.get(position).getId()), "EditClient")
+                        .addToBackStack("mClients")
+                        .commit();
+            }
+
+            @Override
+            public void onItemLongClick(View v, int position) {
+                Log.d(TAG, "longClicked position:" + position);
+                Log.d(TAG, "longClicked on: " + mClients.get(position).getId());
+
+                createDeleteDialog(position);
+            }
+        });
     }
 
     @Override
@@ -88,30 +108,8 @@ public class ClientsFragment extends Fragment {
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
         super.onViewStateRestored(savedInstanceState);
         if (mRecyclerView != null) {
-            observeViewModel(mViewModel);
-            if (mClients == null) {
-                mClients = new ArrayList<>();
-            }
-            mRecyclerView.setAdapter(new RecyclerAdapter<>(mClients, new RecyclerViewItemClickListener() {
-                @Override
-                public void onItemClick(View v, int position) {
-                    Log.d(TAG, "clicked position:" + position);
-                    Log.d(TAG, "clicked on: " + mClients.get(position).getId());
-
-                    getActivity().getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.flContent, EditClientFragment.newInstance(mClients.get(position)), "EditClient")
-                            .addToBackStack("mClients")
-                            .commit();
-                }
-
-                @Override
-                public void onItemLongClick(View v, int position) {
-                    Log.d(TAG, "longClicked position:" + position);
-                    Log.d(TAG, "longClicked on: " + mClients.get(position).getId());
-
-                    createDeleteDialog(position);
-                }
-            }));
+            mRecyclerView.setAdapter(mAdapter);
+            updateClients();
         }
     }
 
@@ -130,7 +128,7 @@ public class ClientsFragment extends Fragment {
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 Toast toast = Toast.makeText(getContext(), getString(R.string.client_deleted), Toast.LENGTH_LONG);
-                mViewModel.deleteClient(client);
+                mAdapter.deleteClient(client);
                 toast.show();
             }
         });
@@ -145,16 +143,33 @@ public class ClientsFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void observeViewModel(ClientListViewModel viewModel) {
-        viewModel.getClients().observe(this, new Observer<List<ClientEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<ClientEntity> clientEntities) {
-                if (clientEntities != null) {
-                    mClients = clientEntities;
-                    ((RecyclerAdapter) mRecyclerView.getAdapter()).setData(mClients);
-                    mRecyclerView.getAdapter().notifyDataSetChanged();
-                }
-            }
-        });
+    private void updateClients() {
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            mClients.clear();
+                            mClients.addAll(toClients(dataSnapshot));
+                            mAdapter.updateData(mClients);
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "getAll: onCancelled", databaseError.toException());
+                    }
+                });
+    }
+
+    private List<ClientEntity> toClients(DataSnapshot snapshot) {
+        List<ClientEntity> clients = new ArrayList<>();
+        for (DataSnapshot childSnapshot : snapshot.getChildren()) {
+            ClientEntity entity = childSnapshot.getValue(ClientEntity.class);
+            entity.setId(childSnapshot.getKey());
+            clients.add(entity);
+        }
+        return clients;
     }
 }

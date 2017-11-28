@@ -196,6 +196,7 @@ public class LoginActivity extends AppCompatActivity {
 
         client1.setFirstName("Michel");
         client1.setLastName("Platini");
+        client1.setEmail("m.p@fifa.com");
         client1.setId("afxWlnpnwcQz52vNfwOK0gESJum1");
         client1.setPassword("platini1");
         client1.setAdmin(false);
@@ -203,6 +204,7 @@ public class LoginActivity extends AppCompatActivity {
 
         client2.setFirstName("Sepp");
         client2.setLastName("Blatter");
+        client2.setEmail("s.b@fifa.com");
         client2.setId("T5Ut1jePpkM7tLADc26OlfqAj9J3");
         client2.setPassword("blatter1");
         client2.setAdmin(true);
@@ -210,6 +212,7 @@ public class LoginActivity extends AppCompatActivity {
 
         client3.setFirstName("Ebbe");
         client3.setLastName("Schwartz");
+        client3.setEmail("e.s@fifa.com");
         client3.setId("CZKUC27B2DRL5UVanNt7kturoJi2");
         client3.setPassword("schwartz1");
         client3.setAdmin(false);
@@ -217,6 +220,7 @@ public class LoginActivity extends AppCompatActivity {
 
         client4.setFirstName("Aleksander");
         client4.setLastName("Ceferin");
+        client4.setEmail("a.c@fifa.com");
         client4.setId("l9AAskVtKEP2YxrOgO8OBiSzlKi2");
         client4.setPassword("ceferin1");
         client4.setAdmin(false);

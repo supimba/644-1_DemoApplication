@@ -1,11 +1,10 @@
 package ch.hevs.android.demoapplication.ui.fragment.client;
 
-import android.arch.lifecycle.Observer;
-import android.arch.lifecycle.ViewModelProviders;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,23 +13,27 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.Toast;
 
-import java.util.List;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+import java.util.UUID;
 
 import ch.hevs.android.demoapplication.R;
 import ch.hevs.android.demoapplication.entity.ClientEntity;
 import ch.hevs.android.demoapplication.ui.activity.MainActivity;
-import ch.hevs.android.demoapplication.viewmodel.ClientListViewModel;
 
 public class EditClientFragment extends Fragment {
 
     private final String TAG = "EditClientFragment";
     private static final String ARG_PARAM1 = "clientEmail";
 
-    private ClientListViewModel mViewModel;
     private ClientEntity mClient;
     private boolean mAdminMode;
     private Toast mToast;
-    private String mClientEmail;
+    private String mClientUid;
 
     private EditText mEtFirstName;
     private EditText mEtLastName;
@@ -46,17 +49,15 @@ public class EditClientFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param client ClientEntity.
+     * @param clientUid Uid of ClientEntity.
      * @return A new instance of fragment EditClientFragment.
      */
-    public static EditClientFragment newInstance(ClientEntity client) {
+    public static EditClientFragment newInstance(String clientUid) {
         EditClientFragment fragment = new EditClientFragment();
         Bundle args = new Bundle();
 
-        if (client != null) {
-            args.putString(ARG_PARAM1, client.getId());
-        } else {
-            args.putString(ARG_PARAM1, "create");
+        if (!clientUid.isEmpty()) {
+            args.putString(ARG_PARAM1, clientUid);
         }
         fragment.setArguments(args);
         return fragment;
@@ -67,11 +68,9 @@ public class EditClientFragment extends Fragment {
         super.onCreate(savedInstanceState);
         SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
         mAdminMode = settings.getBoolean(MainActivity.PREFS_ADM, false);
-        mViewModel = ViewModelProviders.of(this).get(ClientListViewModel.class);
-        observeViewModel(mViewModel);
 
         if (getArguments() != null) {
-            mClientEmail = getArguments().getString(ARG_PARAM1);
+            mClientUid = getArguments().getString(ARG_PARAM1);
             ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_edit_client));
             mToast = Toast.makeText(getContext(), getString(R.string.client_edited), Toast.LENGTH_LONG);
         }
@@ -88,13 +87,23 @@ public class EditClientFragment extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         initializeForm();
-            /* TODO: Change to Firebase
-            try {
-                mClient = new GetClient(getView()).execute(mClientEmail).get();
-            } catch (InterruptedException | ExecutionException e) {
-                Log.d(TAG, e.getMessage(), e);
-            }*/
-        populateForm();
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(mClientUid)
+                .addListenerForSingleValueEvent(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        if (dataSnapshot.exists()) {
+                            mClient = dataSnapshot.getValue(ClientEntity.class);
+                            populateForm();
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.d(TAG, "getAll: onCancelled", databaseError.toException());
+                    }
+                });
     }
 
     private void initializeForm() {
@@ -108,10 +117,13 @@ public class EditClientFragment extends Fragment {
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (saveChanges(mEtFirstName.getText().toString(), mEtLastName.getText().toString(), mEtEmail.getText().toString(), mEtPwd1.getText().toString(), mEtPwd2.getText().toString(), mAdminSwitch.isChecked())) {
-                    getActivity().onBackPressed();
-                    mToast.show();
-                }
+                saveChanges(
+                        mEtFirstName.getText().toString(),
+                        mEtLastName.getText().toString(),
+                        mEtPwd1.getText().toString(),
+                        mEtPwd2.getText().toString(),
+                        mAdminSwitch.isChecked()
+                );
             }
         });
     }
@@ -119,7 +131,7 @@ public class EditClientFragment extends Fragment {
     private void populateForm() {
         mEtFirstName.setText(mClient.getFirstName());
         mEtLastName.setText(mClient.getLastName());
-        mEtEmail.setText(mClient.getId());
+        mEtEmail.setText(mClient.getEmail());
         mEtEmail.setFocusable(false);
         mEtEmail.setLongClickable(false);
         mEtEmail.setEnabled(false);
@@ -129,29 +141,35 @@ public class EditClientFragment extends Fragment {
         }
     }
 
-    private boolean saveChanges(String firstName, String lastName, String email, String pwd, String pwd2, boolean admin) {
+    private void saveChanges(String firstName, String lastName, String pwd, String pwd2, boolean admin) {
         if (!pwd.equals(pwd2)) {
             mEtPwd1.setError(getString(R.string.error_incorrect_password));
             mEtPwd1.requestFocus();
             mEtPwd1.setText("");
             mEtPwd2.setText("");
-            return false;
         }
         mClient.setFirstName(firstName);
         mClient.setLastName(lastName);
         mClient.setPassword(pwd);
         mClient.setAdmin(admin);
-        mViewModel.updateClient(mClient);
-
-        mToast.show();
-        return true;
+        updateClient(mClient);
     }
 
-    private void observeViewModel(ClientListViewModel viewModel) {
-        viewModel.getClients().observe(this, new Observer<List<ClientEntity>>() {
-            @Override
-            public void onChanged(@Nullable List<ClientEntity> clientEntities) {
-            }
-        });
+    private void updateClient(final ClientEntity client) {
+        FirebaseDatabase.getInstance()
+                .getReference("clients")
+                .child(client.getId())
+                .updateChildren(client.toMap(), new DatabaseReference.CompletionListener() {
+                    @Override
+                    public void onComplete(DatabaseError databaseError, DatabaseReference databaseReference) {
+                        if (databaseError != null) {
+                            Log.d(TAG, "Update failure!", databaseError.toException());
+                        } else {
+                            Log.d(TAG, "Update successful!");
+                            getActivity().onBackPressed();
+                            mToast.show();
+                        }
+                    }
+                });
     }
 }
