@@ -63,9 +63,6 @@ public class AccountFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         ((MainActivity) getActivity()).setActionBarTitle(getString(R.string.fragment_title_account));
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
         mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
         if (mUser == null) {

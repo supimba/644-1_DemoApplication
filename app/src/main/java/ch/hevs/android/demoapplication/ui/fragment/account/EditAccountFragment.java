@@ -1,7 +1,6 @@
 package ch.hevs.android.demoapplication.ui.fragment.account;
 
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -14,9 +13,11 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.UUID;
 
@@ -31,14 +32,15 @@ public class EditAccountFragment extends Fragment {
     private static final String ARG_PARAM1 = "accountId";
 
     private AccountEntity mAccount;
+    private String mUserUid;
     private String mAccountId;
-    private String mUser;
     private boolean mEditMode;
     private Toast mToast;
 
     private EditText mEtAccountName;
 
-    public EditAccountFragment() { }
+    public EditAccountFragment() {
+    }
 
     /**
      * Use this factory method to create a new instance of
@@ -63,10 +65,9 @@ public class EditAccountFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences settings = getActivity().getSharedPreferences(MainActivity.PREFS_NAME, 0);
-        mUser = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        mUserUid = FirebaseAuth.getInstance().getCurrentUser().getUid();
 
-        if (mUser == null) {
+        if (mUserUid.isEmpty()) {
             Intent intent = new Intent(getActivity(), LoginActivity.class);
             startActivity(intent);
         }
@@ -97,13 +98,25 @@ public class EditAccountFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         initializeForm();
         if (mEditMode) {
-            /* TODO: Change to Firebase
-            try {
-                mAccount = new GetAccount(getView()).execute(mAccountId).get();
-            } catch (InterruptedException | ExecutionException e) {
-                Log.d(TAG, e.getMessage(), e);
-            }*/
-            populateForm();
+            FirebaseDatabase.getInstance()
+                    .getReference("clients")
+                    .child(mUserUid)
+                    .child("accounts")
+                    .child(mAccountId)
+                    .addListenerForSingleValueEvent(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot) {
+                            if (dataSnapshot.exists()) {
+                                mAccount = dataSnapshot.getValue(AccountEntity.class);
+                                populateForm();
+                            }
+                        }
+
+                        @Override
+                        public void onCancelled(DatabaseError databaseError) {
+                            Log.d(TAG, "getAll: onCancelled", databaseError.toException());
+                        }
+                    });
         }
     }
 
@@ -129,7 +142,7 @@ public class EditAccountFragment extends Fragment {
             updateAccount(mAccount);
         } else {
             AccountEntity newAccount = new AccountEntity();
-            newAccount.setOwner(mUser);
+            newAccount.setOwner(mUserUid);
             newAccount.setBalance(0.0d);
             newAccount.setName(accountName);
             addAccount(newAccount);
