@@ -46,29 +46,6 @@ public class RegisterActivity extends AppCompatActivity {
         mToast = Toast.makeText(this, getString(R.string.client_created), Toast.LENGTH_LONG);
     }
 
-    private void saveChanges(String firstName, String lastName, String email, String pwd, String pwd2, boolean admin) {
-        if (!pwd.equals(pwd2) || pwd.length() < 5) {
-            mEtPwd1.setError(getString(R.string.error_invalid_password));
-            mEtPwd1.requestFocus();
-            mEtPwd1.setText("");
-            mEtPwd2.setText("");
-            return;
-        }
-        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            mEtEmail.setError(getString(R.string.error_invalid_email));
-            mEtEmail.requestFocus();
-            return;
-        }
-        ClientEntity newClient = new ClientEntity();
-        newClient.setFirstName(firstName);
-        newClient.setLastName(lastName);
-        newClient.setEmail(email);
-        newClient.setPassword(pwd);
-        newClient.setAdmin(admin);
-
-        addClient(newClient);
-    }
-
     private void initializeForm() {
         mEtFirstName = findViewById(R.id.firstName);
         mEtLastName = findViewById(R.id.lastName);
@@ -90,6 +67,29 @@ public class RegisterActivity extends AppCompatActivity {
                 );
             }
         });
+    }
+
+    private void saveChanges(String firstName, String lastName, String email, String pwd, String pwd2, boolean admin) {
+        if (!pwd.equals(pwd2) || pwd.length() < 5) {
+            mEtPwd1.setError(getString(R.string.error_invalid_password));
+            mEtPwd1.requestFocus();
+            mEtPwd1.setText("");
+            mEtPwd2.setText("");
+            return;
+        }
+        if (!android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
+            mEtEmail.setError(getString(R.string.error_invalid_email));
+            mEtEmail.requestFocus();
+            return;
+        }
+        ClientEntity newClient = new ClientEntity();
+        newClient.setFirstName(firstName);
+        newClient.setLastName(lastName);
+        newClient.setEmail(email);
+        newClient.setPassword(pwd);
+        newClient.setAdmin(admin);
+
+        addClient(newClient);
     }
 
     public void addClient(final ClientEntity client) {

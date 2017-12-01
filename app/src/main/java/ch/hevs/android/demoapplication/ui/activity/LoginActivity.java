@@ -115,6 +115,12 @@ public class LoginActivity extends AppCompatActivity {
                                             public void onDataChange(DataSnapshot dataSnapshot) {
                                                 if (dataSnapshot.exists()) {
                                                     editor.putBoolean(MainActivity.PREFS_ADM, dataSnapshot.getValue(ClientEntity.class).getAdmin());
+                                                    editor.apply();
+
+                                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                                    startActivity(intent);
+                                                    mEmailView.setText("");
+                                                    mPasswordView.setText("");
                                                 }
                                             }
 
@@ -123,12 +129,6 @@ public class LoginActivity extends AppCompatActivity {
                                                 Log.d(TAG, "getAdminRights: onCancelled", databaseError.toException());
                                             }
                                         });
-                                editor.apply();
-
-                                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                startActivity(intent);
-                                mEmailView.setText("");
-                                mPasswordView.setText("");
                             } else {
                                 // If sign in fails, display a message to the user.
                                 Log.d(TAG, "loginUserWithEmail: failure", task.getException());

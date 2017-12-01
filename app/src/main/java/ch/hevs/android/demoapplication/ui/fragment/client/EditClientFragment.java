@@ -93,6 +93,7 @@ public class EditClientFragment extends Fragment {
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         if (dataSnapshot.exists()) {
                             mClient = dataSnapshot.getValue(ClientEntity.class);
+                            mClient.setUid(mClientUid);
                             populateForm();
                         }
                     }
