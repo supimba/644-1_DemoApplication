@@ -95,49 +95,48 @@ public class LoginActivity extends AppCompatActivity {
 
         if (validateForm(email, password)) {
             mProgressBar.setVisibility(View.VISIBLE);
-            mAuth.signInWithEmailAndPassword(email, password)
-                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                        @Override
-                        public void onComplete(@NonNull Task<AuthResult> task) {
-                            mProgressBar.setVisibility(View.GONE);
-                            if (task.isSuccessful()) {
-                                // Sign in success, update UI with the signed-in user's information
-                                Log.d(TAG, "loginUserWithEmail: success");
+            mAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                @Override
+                public void onComplete(@NonNull Task<AuthResult> task) {
+                    mProgressBar.setVisibility(View.GONE);
+                    if (task.isSuccessful()) {
+                        // Sign in success, update UI with the signed-in user's information
+                        Log.d(TAG, "loginUserWithEmail: success");
 
-                                // We need an Editor object to make preference changes.
-                                // All objects are from android.context.Context
-                                final SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
-                                FirebaseDatabase.getInstance()
-                                        .getReference("clients")
-                                        .child(mAuth.getCurrentUser().getUid())
-                                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(DataSnapshot dataSnapshot) {
-                                                if (dataSnapshot.exists()) {
-                                                    editor.putBoolean(MainActivity.PREFS_ADM, dataSnapshot.getValue(ClientEntity.class).getAdmin());
-                                                    editor.apply();
+                        // We need an Editor object to make preference changes.
+                        // All objects are from android.context.Context
+                        final SharedPreferences.Editor editor = getSharedPreferences(MainActivity.PREFS_NAME, 0).edit();
+                        FirebaseDatabase.getInstance()
+                                .getReference("clients")
+                                .child(mAuth.getCurrentUser().getUid())
+                                .addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(DataSnapshot dataSnapshot) {
+                                        if (dataSnapshot.exists()) {
+                                            editor.putBoolean(MainActivity.PREFS_ADM, dataSnapshot.getValue(ClientEntity.class).getAdmin());
+                                            editor.apply();
 
-                                                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                                                    startActivity(intent);
-                                                    mEmailView.setText("");
-                                                    mPasswordView.setText("");
-                                                }
-                                            }
+                                            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                                            startActivity(intent);
+                                            mEmailView.setText("");
+                                            mPasswordView.setText("");
+                                        }
+                                    }
 
-                                            @Override
-                                            public void onCancelled(DatabaseError databaseError) {
-                                                Log.d(TAG, "getAdminRights: onCancelled", databaseError.toException());
-                                            }
-                                        });
-                            } else {
-                                // If sign in fails, display a message to the user.
-                                Log.d(TAG, "loginUserWithEmail: failure", task.getException());
-                                mEmailView.setError(getString(R.string.error_invalid_email));
-                                mEmailView.requestFocus();
-                                mPasswordView.setText("");
-                            }
-                        }
-                    });
+                                    @Override
+                                    public void onCancelled(DatabaseError databaseError) {
+                                        Log.d(TAG, "getAdminRights: onCancelled", databaseError.toException());
+                                    }
+                                });
+                    } else {
+                        // If sign in fails, display a message to the user.
+                        Log.d(TAG, "loginUserWithEmail: failure", task.getException());
+                        mEmailView.setError(getString(R.string.error_invalid_email));
+                        mEmailView.requestFocus();
+                        mPasswordView.setText("");
+                    }
+                }
+            });
         }
     }
 
@@ -239,7 +238,7 @@ public class LoginActivity extends AppCompatActivity {
         account1.setBalance(20000d);
         account1.setName("Savings");
         account1.setOwner(clients.get(0).getUid());
-        accounts.add(account1 );
+        accounts.add(account1);
 
         account2.setUid(UUID.randomUUID().toString());
         account2.setBalance(1840000d);
